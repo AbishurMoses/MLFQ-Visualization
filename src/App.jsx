@@ -1,4 +1,5 @@
 import './App.css'
+import QueueGraph from './components/QueueGraph'
 
 function App() {
 	return (
@@ -21,9 +22,7 @@ function App() {
 					</div>
 				</div>
 				<div id="MLFQ-container">
-					<div id="graph">
-						<h3>TODO This will display stocks</h3>
-					</div>
+					<QueueGraph />
 					<p>Controls</p>
 					<div id="controls">
 						<div className="cols" id="col1">
