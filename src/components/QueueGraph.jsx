@@ -1,33 +1,69 @@
 
 const QueueGraph = (props) => {
     const { queueData } = props
-    /*
-        queueData format (tentative)
-        [
-            [ // first queue
-                jobBlock, jobBlock, jobBlock
+    let count = 1;
+    const data = { // TEMPORARY, delete this eventually
+        currentTime: 50,
+        queues: [
+            [
+                // {start: , length: , job: , name: , color: ,},
+                {start: 0, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
+                {start: 5, length: 8, job: 2, name: "something", color: "#ffee4c",},
+                {start: 20, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
+                {start: 27, length: 12, job: 2, name: "something", color: "#ffee4c",},
             ],
-            [ // second queue
-                jobBlock, jobBlock
+            [
+                {start: 0, length: 6, job: 1, name: "quicksand", color: "#2a2a2a",},
+                {start: 20, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
+                {start: 27, length: 12, job: 2, name: "something", color: "#ffee4c",},
             ],
-            [ // third queue
-                jobBlock, jobBlock, jobBlock, jobBlock, jobBlock
+            [
+                {start: 6, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
+                {start: 14, length: 8, job: 2, name: "something", color: "#ffee4c",},
+                {start: 22, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
+                {start: 30, length: 12, job: 2, name: "something", color: "#ffee4c",},
             ],
         ]
+    }
+    /*
+        queueData format (tentative)
+        {
+            currentTime: int, // how long the scheduler has been running.
+            data: [
+                [ // first queue
+                    jobBlock, jobBlock, jobBlock
+                ],
+                [ // second queue
+                    jobBlock, jobBlock
+                ],
+                [ // third queue
+                    jobBlock, jobBlock, jobBlock, jobBlock, jobBlock
+                ],
+            ]
+        }
 
         jobBlock format: 
         {
-            "length": int,
-            "job": int (job's id)
-            "name": string (job's name?)
-            "color": string (hex value)
+            start: float, (job start time)
+            length: float,
+            job: int (job's id)
+            name: string (job's name?)
+            color: string (hex value)
         }
-        Note: jobBlocks can be empty space, meaning nothing is going on in that queue. 
-        In those cases, we can just use a special id like -1 to indicate it's empty space. 
         
     */
     return (
-        <div id="graph">
+        <div id="graph" className="flex flex-row" >
+            { data.queues.map((queue, index) => { // each queue
+                return (
+                    <div key={`${index}`} className="border-2">
+                        { queue.map((jobRun, subIdx) => { // each jobBlock
+                            return <span className="pl-5" key={`${jobRun.name}-${index}-${subIdx}`}>{ jobRun.name }</span>
+                        }) }
+                        <br/>
+                    </div>
+                )
+            }) }
             The queue graph
         </div>
     )
