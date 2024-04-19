@@ -10,39 +10,90 @@ class Queue {
     Define a Queue class to run tasks in round robin.
     */
     static intervalID;
-    static elapsed;
+    static elapsed = 0;
     static cycleTime;
-    static RRTime;
+    static RRcycles;
     static jobs = [];
-    static currrentJob;     // the index of the current job
+    static current = 0;    // the index of the current job
 
     /*
         cycleTime (int) number of milliseconds for each machine cycle
-        RRTime (int) number of milliseconds between Round Robin job switches
+        RRcycles (int) number of cycles between Round Robin job switches
     */
-    constructor(cycleTime, RRTime, jobs) {
+    constructor(cycleTime, RRcycles) {
         this.cycleTime = cycleTime;
-        this.RRTime = RRTime;
+        this.RRcycles = RRcycles;
         this.elapsed = 0;
-        this.jobs = jobs;
+        this.jobs = [];
     }
 
     /*
-        run a machine cycle
+        cycle the clock:
+        1. Pick the next job to run (or find they are all complete)
+        2. run it for one cycle
     */
     cycle() {
-        console.log(`t = ${this.elapsed}: running ${this.jobs[this.currentJob].name}.`);
-        if(!this.jobs[this.currentJob].run()) {
-            console.log(`${this.jobs[this.currentJob].name} done! Switching jobs...`);
-            if(this.currentJob == this.jobs.length - 1) {
-                console.log("All done!");
-                this.stop();
-            }
-            else {
-                this.currentJob++;
-            }
+        let job = this.nextRRJob();
+        if(job) {
+            console.log(`${this.elapsed}: running ${job.name}`);
+            job.run();
+        }
+        else {
+            console.log("All jobs complete!")
+            this.stop();
         }
         this.elapsed++;
+    }
+
+    /*
+        decide the next round robin job
+    */
+    nextRRJob() {
+        // if the current job is done or the RRcycles are up
+        if(this.jobs[this.current].isDone()) {
+            console.log(`Job ${this.jobs[this.current].name} done. Moving to next job.`);
+            return this.nextUnfinishedJob();
+        } 
+        if(this.elapsed % this.RRcycles == 0) {
+            console.log("Round Robin interrupt. Moving to next job.");
+            return this.nextUnfinishedJob();
+        }
+        else {
+            return this.jobs[this.current];
+        }
+    }
+
+    /*
+        move current to point to the next job
+    */
+    nextJob() {
+        if(this.current == this.jobs.length - 1) {
+            this.current = 0;
+        }
+        else {
+            this.current++;
+        }
+    }
+
+    /*
+        find and return the next unfinished job in the array of jobs
+    */
+    nextUnfinishedJob() {
+        // track startpoint to see when we loop back
+        console.log("Finding next unfinished job...");
+        let startpoint = this.current;
+        console.log(`startpoint = ${startpoint}`);
+        // find the next unfinished job
+        this.nextJob();
+        while(this.jobs[this.current].isDone()) {
+            console.log(`${this.jobs[this.current].name} is done.`)
+            // If we made a complete cycle of the jobs and all are done, then we finished!
+            if(this.current == startpoint) {
+                return false;
+            }
+            this.nextJob();
+        }
+        return this.jobs[this.current];
     }
 
     /*
@@ -56,7 +107,7 @@ class Queue {
 
     start() {
         console.log("started.");
-        this.currentJob = 0;
+        this.current = 0;
         // the bind() is necessary to bring the this keyword into the scope
         // of the function passed to setInterval
         this.intervalID = setInterval(this.cycle.bind(this), this.cycleTime);

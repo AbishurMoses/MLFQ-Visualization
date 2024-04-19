@@ -11,8 +11,12 @@ const { Job } = require("./Job.js");
 function test() {
     const j1 = new Job("j1", 7);
     const j2 = new Job("j2", 2);
-    const Q = new Queue(500, 1000, [j1, j2]);
+    const late = new Job("late", 3);
+    const Q = new Queue(500, 2);
+    Q.addJob(j1);
+    Q.addJob(j2);
     Q.start();
+    setTimeout(Q.addJob.bind(Q), 1000, late);
 }
 
 test();

@@ -27,13 +27,12 @@ class Job {
     }
 
     // run the job for one clock cycle
-    // If the job is done, return false
     run() {
-        if(this.progress >= this.length) {
-            return false;
-        }
         this.progress++;
-        return true;
+    }
+
+    isDone() {
+        return this.progress >= this.length;
     }
 
 }
