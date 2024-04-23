@@ -1,6 +1,6 @@
 
 const QueueGraph = (props) => {
-    const { queueData } = props
+    const { queueData } = props;
     let count = 1;
     const data = { // TEMPORARY, delete this eventually
         currentTime: 50,
@@ -56,11 +56,12 @@ const QueueGraph = (props) => {
         <div id="graph" className="flex flex-col">
             { data.queues.map((queue, index) => { // each queue
                 return (
-                    <div key={`${index}`} className="border border-gray-400 w-4/5">
+                    <div key={`${index}`} className="border border-gray-400 w-4/5 relative h-8 flex items-center">
                         { queue.map((jobRun, subIdx) => { // each jobBlock
-                            return <span className="pl-5 border border-red-300" style={{width: `calc(100% - )`}} key={`${jobRun.name}-${index}-${subIdx}`}>{ jobRun.name }</span>
+                            const width = (jobRun.length / data.currentTime) * 100;
+                            const left =  (jobRun.start / data.currentTime) * 100;
+                            return <span className="pl-5 border border-red-300 inline-block absolute h-4/5" style={{width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}`}} key={`${jobRun.name}-${index}-${subIdx}`}></span>
                         }) }
-                        <br/>
                     </div>
                 )
             }) }
@@ -69,4 +70,11 @@ const QueueGraph = (props) => {
     )
 }
 
+/*
+    TODO: 
+    - Add in space blocks for unused time between jobs
+    - add MUI tooltip showing job name, start, length, etc.
+    - Maybe make the spans MUI cards or some other surface
+    - Add vertical/horizontal axes
+*/
 export default QueueGraph
