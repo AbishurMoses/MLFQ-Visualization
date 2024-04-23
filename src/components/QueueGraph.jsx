@@ -86,15 +86,14 @@ const QueueGraph = (props) => {
     }
 
     return (
-        <Paper id="graph" elevation={8} className="flex flex-col gap-4">
+        <Paper id="graph" elevation={8} sx={{backgroundColor: '#2a2a2a'}} className="flex flex-col gap-4">
             { data.queues.map((queue, index) => { // each queue
                 return (
-                    <Paper key={`${index}`} elevation={3} className="border border-gray-400 w-4/5 relative h-8 flex items-center">
+                    <Paper key={`${index}`} elevation={3} variant="outlined" className="w-4/5 relative h-8 flex items-center">
                         { 
                         queue.map((jobRun, subIdx) => {
                             const width = (jobRun.length / data.currentTime) * 100; // width of the job in the queue, expressed as a percentage
                             const left =  (jobRun.start / data.currentTime) * 100; // position item moves left
-                            // const title = ;
                             return (<Tooltip 
                                         arrow title={buildTitle(jobRun)} 
                                         key={`${jobRun.name}-${index}-${subIdx}`}
@@ -115,7 +114,6 @@ const QueueGraph = (props) => {
                     </Paper>
                 )
             }) }
-            The queue graph
         </Paper>
     )
 }
