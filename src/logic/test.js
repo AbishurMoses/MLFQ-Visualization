@@ -6,11 +6,11 @@ Test a single Queue running Round Robin
 */
 
 const { Queue } = require("./Queue.js");
-const { Job } = require("./Job.js");
+const { Job } = require("./job.js");
 
 function test() {
     const j1 = new Job("j1", 7);
-    const j2 = new Job("j2", 2);
+    const j2 = new Job("j2", 5);
     const late = new Job("late", 3);
     const Q = new Queue(500, 2);
     Q.addJob(j1);

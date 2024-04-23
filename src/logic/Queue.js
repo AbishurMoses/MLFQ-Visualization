@@ -51,11 +51,11 @@ class Queue {
     nextRRJob() {
         // if the current job is done or the RRcycles are up
         if(this.jobs[this.current].isDone()) {
-            console.log(`Job ${this.jobs[this.current].name} done. Moving to next job.`);
+            // console.log(`Job ${this.jobs[this.current].name} done. Moving to next job.`);
             return this.nextUnfinishedJob();
         } 
         if(this.elapsed % this.RRcycles == 0) {
-            console.log("Round Robin interrupt. Moving to next job.");
+            // console.log("Round Robin interrupt. Moving to next job.");
             return this.nextUnfinishedJob();
         }
         else {
@@ -80,13 +80,13 @@ class Queue {
     */
     nextUnfinishedJob() {
         // track startpoint to see when we loop back
-        console.log("Finding next unfinished job...");
+        // console.log("Finding next unfinished job...");
         let startpoint = this.current;
-        console.log(`startpoint = ${startpoint}`);
+        // console.log(`startpoint = ${startpoint}`);
         // find the next unfinished job
         this.nextJob();
         while(this.jobs[this.current].isDone()) {
-            console.log(`${this.jobs[this.current].name} is done.`)
+            // console.log(`${this.jobs[this.current].name} is done.`)
             // If we made a complete cycle of the jobs and all are done, then we finished!
             if(this.current == startpoint) {
                 return false;
