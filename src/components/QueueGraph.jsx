@@ -1,7 +1,8 @@
+import { Card, Paper, Table, TableBody, TableCell, TableRow, Tooltip, Typography } from "@mui/material";
+import { styled } from "@mui/system";
 
 const QueueGraph = (props) => {
     const { queueData } = props;
-    let count = 1;
     const data = { // TEMPORARY, delete this eventually
         currentTime: 50,
         queues: [
@@ -25,6 +26,7 @@ const QueueGraph = (props) => {
             ],
         ]
     }
+    
     /*
         queueData format (tentative)
         {
@@ -52,28 +54,74 @@ const QueueGraph = (props) => {
         }
         
     */
+
+    const LightTableCell = styled(TableCell)({
+        color: 'white'
+    })
+
+    const buildTitle = (jobRun) => {
+        return (<div>
+                <Typography variant="body1" component="h3" className="text-center">{jobRun.name}</Typography>
+                <Table size="small">
+                    <TableBody>
+                        <TableRow>
+                            <LightTableCell sx={{color: 'white'}}>ID</LightTableCell>
+                            <LightTableCell align="right">{jobRun.job}</LightTableCell>
+                        </TableRow>
+                        <TableRow>
+                            <LightTableCell>Start</LightTableCell>
+                            <LightTableCell align="right">{jobRun.start}</LightTableCell>
+                        </TableRow>
+                        <TableRow>
+                            <LightTableCell>Stop</LightTableCell>
+                            <LightTableCell align="right">{jobRun.start + jobRun.length}</LightTableCell>
+                        </TableRow>
+                        <TableRow>
+                            <LightTableCell>Length</LightTableCell>
+                            <LightTableCell align="right">{jobRun.length}</LightTableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>);
+    }
+
     return (
-        <div id="graph" className="flex flex-col">
+        <Paper id="graph" elevation={8} className="flex flex-col gap-4">
             { data.queues.map((queue, index) => { // each queue
                 return (
-                    <div key={`${index}`} className="border border-gray-400 w-4/5 relative h-8 flex items-center">
-                        { queue.map((jobRun, subIdx) => { // each jobBlock
-                            const width = (jobRun.length / data.currentTime) * 100;
-                            const left =  (jobRun.start / data.currentTime) * 100;
-                            return <span className="pl-5 border border-red-300 inline-block absolute h-4/5" style={{width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}`}} key={`${jobRun.name}-${index}-${subIdx}`}></span>
+                    <Paper key={`${index}`} elevation={3} className="border border-gray-400 w-4/5 relative h-8 flex items-center">
+                        { 
+                        queue.map((jobRun, subIdx) => {
+                            const width = (jobRun.length / data.currentTime) * 100; // width of the job in the queue, expressed as a percentage
+                            const left =  (jobRun.start / data.currentTime) * 100; // position item moves left
+                            // const title = ;
+                            return (<Tooltip 
+                                        arrow title={buildTitle(jobRun)} 
+                                        key={`${jobRun.name}-${index}-${subIdx}`}
+                                        componentsProps={{
+                                            tooltip: {
+                                              sx: {
+                                                bgcolor: '#2a2a2a',
+                                                '& .MuiTooltip-arrow': {
+                                                  color: '#2a2a2a',
+                                                },
+                                              },
+                                            },
+                                        }}
+                                    >
+                                        <Card className="pl-5 inline-block absolute h-4/5" style={{width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}`}} key={`${jobRun.name}-${index}-${subIdx}`}></Card>
+                                    </Tooltip>)
                         }) }
-                    </div>
+                    </Paper>
                 )
             }) }
             The queue graph
-        </div>
+        </Paper>
     )
 }
 
 /*
     TODO: 
-    - Add in space blocks for unused time between jobs
-    - add MUI tooltip showing job name, start, length, etc.
     - Maybe make the spans MUI cards or some other surface
     - Add vertical/horizontal axes
 */
