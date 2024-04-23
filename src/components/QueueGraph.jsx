@@ -53,12 +53,12 @@ const QueueGraph = (props) => {
         
     */
     return (
-        <div id="graph" className="flex flex-row" >
+        <div id="graph" className="flex flex-col">
             { data.queues.map((queue, index) => { // each queue
                 return (
-                    <div key={`${index}`} className="border-2">
+                    <div key={`${index}`} className="border border-gray-400 w-4/5">
                         { queue.map((jobRun, subIdx) => { // each jobBlock
-                            return <span className="pl-5" key={`${jobRun.name}-${index}-${subIdx}`}>{ jobRun.name }</span>
+                            return <span className="pl-5 border border-red-300" style={{width: `calc(100% - )`}} key={`${jobRun.name}-${index}-${subIdx}`}>{ jobRun.name }</span>
                         }) }
                         <br/>
                     </div>
