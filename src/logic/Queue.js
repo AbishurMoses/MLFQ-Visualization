@@ -5,16 +5,22 @@ Corbin Weiss
 Create a single queue who runs jobs in round-robin
 */
 
-class Queue {
+import JobBlock from "./jobBlock.js";
+
+export default class Queue {
+    // TODO: Add functionality for i/o. How do jobs move from blocked to running to ready?
     /*
     Define a Queue class to run tasks in round robin.
     */
-    static intervalID;
-    static elapsed = 0;
-    static cycleTime;
-    static RRcycles;
-    static jobs = [];
-    static current = 0;    // the index of the current job
+    static intervalID;      // handle for managing setInterval
+    static totalElapsed;    // total time elapsed
+    static jobRuntime;      // Map<id, time> time elapsed running each job in this queue, since the job last joined the queue
+    static RRStartTime;     // time when RR last started
+    static cycleTime;       // time for each machine cycle
+    static RRcycles;        // number of machine cycles between RR switches
+    static jobs;            // Array<{Job, > Jobs in the queue
+    static jobBlocks;       // Array<JobBlock> history of jobs run in this queue for graphing.
+    static currentJob;      // the index of the current job
 
     /*
         cycleTime (int) number of milliseconds for each machine cycle
@@ -23,8 +29,12 @@ class Queue {
     constructor(cycleTime, RRcycles) {
         this.cycleTime = cycleTime;
         this.RRcycles = RRcycles;
-        this.elapsed = 0;
+        this.totalElapsed = 0;
+        this.jobRuntime = new Map();
+        this.RRStartTime = 0;
         this.jobs = [];
+        this.jobBlocks = [];
+        this.currentJob = 0;
     }
 
     /*
@@ -35,32 +45,40 @@ class Queue {
     cycle() {
         let job = this.nextRRJob();
         if(job) {
-            console.log(`${this.elapsed}: running ${job.name}`);
+            console.log(`${this.totalElapsed}: running ${job.name}`);
             job.run();
+            // update the time this job has been running in the queue
+            this.jobRuntime.set(job.id, this.jobRuntime.get(job.id) + 1);
         }
         else {
             console.log("All jobs complete!")
             this.stop();
         }
-        this.elapsed++;
+        this.totalElapsed++;
     }
 
     /*
         decide the next round robin job
     */
     nextRRJob() {
-        // if the current job is done or the RRcycles are up
-        if(this.jobs[this.current].isDone()) {
-            // console.log(`Job ${this.jobs[this.current].name} done. Moving to next job.`);
+        // if the current job has been running longer than the RR time
+        if(this.jobs[this.current].isDone() || this.totalElapsed % this.RRcycles == 0) {
+            // add a job block for the just finished job.
+            this.addJobBlock();
+            this.RRStartTime = this.totalElapsed;
             return this.nextUnfinishedJob();
         } 
-        if(this.elapsed % this.RRcycles == 0) {
-            // console.log("Round Robin interrupt. Moving to next job.");
-            return this.nextUnfinishedJob();
-        }
         else {
             return this.jobs[this.current];
         }
+    }
+
+    /*
+        add a job block to the queue's state for graphing
+    */
+    addJobBlock() {
+        this.jobBlocks.push(
+            new JobBlock(this.jobs[this.current], this.RRStartTime, this.totalElapsed - this.RRStartTime));
     }
 
     /*
@@ -102,6 +120,7 @@ class Queue {
     */
     addJob(job) {
         this.jobs.push(job);
+        this.jobRuntime.set(job.id, 0);
         console.log(`Added job ${job.name}`);
     }
 
@@ -129,8 +148,4 @@ function test() {
     setTimeout(() => {
         test.stop();
     }, 1000);
-}
-
-module.exports = {
-    Queue,
 }

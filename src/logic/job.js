@@ -13,17 +13,25 @@ const States = {
 };
 
 
-class Job {
+export default class Job {
+    static name;        // name of the job
+    static id;          // id of the job for the MLFQ scheduler
     static length;      // job length measured in clock cycles
     static progress;    // cycles completed on job
     static state;       // RUNNING, READY, or BLOCKED
-    static name;
+    static color;       // color of the job
 
     // length: Job length measured in clock cycles
-    constructor(name, length) {
+    constructor(name, length, color) {
         this.name = name;
         this.length = length;
+        this.color = color;
         this.progress = 0;
+    }
+
+    // handle for MLFQ scheduler to set its ID for this job. 
+    setID(id) {
+        this.id = id;
     }
 
     // run the job for one clock cycle
@@ -35,8 +43,4 @@ class Job {
         return this.progress >= this.length;
     }
 
-}
-
-module.exports = {
-    Job,
 }
