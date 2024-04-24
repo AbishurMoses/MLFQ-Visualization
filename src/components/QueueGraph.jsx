@@ -26,6 +26,10 @@ const QueueGraph = (props) => {
             ],
         ]
     }
+    const queueGap = 15;
+    const queueHeight = 32;
+    const queueContainerPL = 16;
+    const queueContainerPB = 16;
     
     /*
         queueData format (tentative)
@@ -86,41 +90,48 @@ const QueueGraph = (props) => {
     }
 
     return (
-        <Paper id="graph" elevation={8} sx={{backgroundColor: '#2a2a2a'}} className="flex flex-col gap-4">
-            { data.queues.map((queue, index) => { // each queue
-                return (
-                    <Paper key={`${index}`} elevation={3} variant="outlined" className="w-4/5 relative h-8 flex items-center">
-                        { 
-                        queue.map((jobRun, subIdx) => {
-                            const width = (jobRun.length / data.currentTime) * 100; // width of the job in the queue, expressed as a percentage
-                            const left =  (jobRun.start / data.currentTime) * 100; // position item moves left
-                            return (<Tooltip 
-                                        arrow title={buildTitle(jobRun)} 
-                                        key={`${jobRun.name}-${index}-${subIdx}`}
-                                        componentsProps={{
-                                            tooltip: {
-                                              sx: {
-                                                bgcolor: '#2a2a2a',
-                                                '& .MuiTooltip-arrow': {
-                                                  color: '#2a2a2a',
+        <Paper id="graph" elevation={8} sx={{backgroundColor: '#2a2a2a'}} className="flex">
+            <div className="w-4/5 h-max pb-4 pl-4 flex flex-col justify-center items-center relative font-semibold" style={{gap: `${queueGap}px`, padding: `0 0 ${queueContainerPB}px ${queueContainerPL}px`}}>
+                { data.queues.map((_, idx) => { // y-axis labels
+                    let topPosition = (idx * queueGap) + (idx * queueHeight); 
+                    return <p key={`queue-label-${idx+1}`} className="absolute flex items-center -left-4 text-white" style={{top: `${topPosition}px`, height: `${queueHeight}px`}}>Q{idx + 1}</p>
+                })}
+                { data.queues.map((queue, index) => { // each queue
+                    return (
+                        <Paper key={`${index}`} elevation={3} className="w-full relative flex items-center" style={{height: `${queueHeight}px`}}>
+                            { 
+                            queue.map((jobRun, subIdx) => {
+                                const width = (jobRun.length / data.currentTime) * 100; // width of the job in the queue, expressed as a percentage
+                                const left =  (jobRun.start / data.currentTime) * 100; // position item moves left
+                                return (<Tooltip 
+                                            arrow title={buildTitle(jobRun)} 
+                                            key={`${jobRun.name}-${index}-${subIdx}`}
+                                            componentsProps={{
+                                                tooltip: {
+                                                sx: {
+                                                    bgcolor: '#2a2a2a',
+                                                    '& .MuiTooltip-arrow': {
+                                                    color: '#2a2a2a',
+                                                    },
                                                 },
-                                              },
-                                            },
-                                        }}
-                                    >
-                                        <Card className="pl-5 inline-block absolute h-4/5" style={{width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}`}} key={`${jobRun.name}-${index}-${subIdx}`}></Card>
-                                    </Tooltip>)
-                        }) }
-                    </Paper>
-                )
-            }) }
+                                                },
+                                            }}
+                                        >
+                                            <Card className="pl-5 inline-block absolute h-4/5" style={{width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}`}} key={`${jobRun.name}-${index}-${subIdx}`}></Card>
+                                        </Tooltip>)
+                            }) }
+                        </Paper>
+                    )
+                }) }
+                <div className="absolute flex justify-between -bottom-4 font-semibold text-white" style={{width: `calc(100% - ${queueContainerPL}px)`}}>
+                    <p>{0}</p>
+                    <p>{(data.currentTime / 3).toFixed(1)}</p>
+                    <p>{(data.currentTime * 2 / 3).toFixed(1)}</p>
+                    <p>{(data.currentTime).toFixed(1)}</p>
+                </div>
+            </div>
         </Paper>
     )
 }
 
-/*
-    TODO: 
-    - Maybe make the spans MUI cards or some other surface
-    - Add vertical/horizontal axes
-*/
 export default QueueGraph
