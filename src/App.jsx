@@ -1,4 +1,5 @@
 import './App.css'
+import PidTable from './components/PidTable'
 import QueueGraph from './components/QueueGraph'
 
 function App() {
@@ -42,10 +43,7 @@ function App() {
 			</div>
 			<div id="bottom">
 				<div id="table-container">
-					<div className="table-cols" id="pid-table">
-						<p>Process Table</p>
-						<div><h1>Graph!</h1></div>
-					</div>
+                    <PidTable></PidTable>
 					<div className="table-cols" id="stats">
 						<p>Stats</p>
 						<div>
