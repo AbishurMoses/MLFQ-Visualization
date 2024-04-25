@@ -1,6 +1,7 @@
 import './App.css'
 import PidTable from './components/PidTable'
 import QueueGraph from './components/QueueGraph'
+import StatsTable from './components/StatsTable'
 
 function App() {
 	return (
@@ -44,17 +45,7 @@ function App() {
 			<div id="bottom">
 				<div id="table-container">
                     <PidTable></PidTable>
-					<div className="table-cols" id="stats">
-						<p>Stats</p>
-						<div>
-							<ul>
-								<li>Average response time:</li>
-								<li>Average turnaround time:</li>
-								<li>Average job time:</li>
-								<li>Time in Context Switch:</li>
-							</ul>
-						</div>
-					</div>
+                    <StatsTable></StatsTable>
 					<div className="table-cols" id="time">
 						<p>Time Usage</p>
 						<div><h1>Graph!</h1></div>
