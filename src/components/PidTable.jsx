@@ -1,4 +1,4 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 
 const PidTable = (props) => {
     const { tableQueueData } = props;
@@ -15,8 +15,11 @@ const PidTable = (props) => {
     ]
 
     return (
-        <Paper elevation={5} className="table-cols w-1/2 h-full overflow-hidden" sx={{backgroundColor: 'gray'}}>
-            <TableContainer className="max-h-full">
+        <Paper elevation={5} className="table-cols w-1/2 max-h-full h-max p-2 overflow-hidden" sx={{backgroundColor: 'gray'}}>
+            <Typography component="h2" variant="h5" className="pb-2">
+                Process Control Block
+            </Typography>
+            <TableContainer className="max-h-full" sx={{backgroundColor: 'beige'}}>
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>
