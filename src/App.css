@@ -161,10 +161,6 @@ div > #col2 {
   height: 100%;
 }
 
-#pid-table {
-  width: 45%;
-}
-
 #stats {
   width: 27.5%;
 }
@@ -173,8 +169,7 @@ div > #col2 {
   width: 27.5%;
 }
 
-#time > div,
-#pid-table > div {
+#time > div {
   width: 70%;
   height: 85%;
   background-color: purple;
