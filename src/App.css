@@ -21,7 +21,6 @@ p {
 }
 
 /* Basic Containers */
-
 #top {
   height: 60%;
   width: 100%;
@@ -85,6 +84,7 @@ p {
   background-color: purple;
   display: flex;
   justify-content: center;
+  flex-direction: column  ;
 }
 
 #job-button {
