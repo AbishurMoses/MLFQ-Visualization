@@ -5,46 +5,131 @@
     Create the MLFQ scheduler
 */
 
-import Queue from "./Queue.js";
+import {States} from "./job.js";
 
-export default class MLFQ {
-    static queues;          // Array<Queue>: queues that make up the MLFQ
-    static jobs;            // Array<Jobs>:  jobs to run in the MLFQ
-    static cycleTime;       // time in ms for each clock cycle
-    static queueInterval;   // time each job gets in each queue before it is demoted
-    static boostTime;       // time between priority boosts
-    static currentQueue;    // the currently active queue
-    static clock;           // the current clock cycle count
+class MLFQ {
+    static intervalID;      // track the intervalID to manage the clock
+    static queues;          // (Array<Queue>) queues that make up the MLFQ
+    static jobs;            // (Array<Jobs>) jobs to run in the MLFQ
+    static cycleTime;       // (int) time in ms for each clock cycle
+    static boostCycles;     // (int) time between priority boosts
+    static cyclesElapsed;   // (int) the elapsed clock cycle count
     
-    constructor(cycleTime, queueCount, RRcycles, queueInterval, boostTime) {
-        this.cycleTime = cycleTime;
+    constructor(cycleTime, boostCycles) {
         this.queues = [];
-        for(let i = 0; i<queueCount; i++){
-            this.queues.push(new Queue(cycleTime, RRcycles));
-        }
-        this.queueInterval = queueInterval;
-        this.boostTime = boostTime;
+        this.jobs = [];
+        this.cycleTime = cycleTime;
+        this.boostTime = boostCycles;
+        this.cyclesElapsed = 0; 
     }
 
-    // TODO: Figure out who owns the clock. Is it only running in the MLFQ?
-    // Is the clock passed to the currently running queue?
-
-    // I think the clock should be owned by the MLFQ, which calls run() for a single clock cycle on 
-    // the currently active queue. This queue then handles the logic for its jobs, and may return a demoted job
+    // The clock is owned by the MLFQ, which decides which queue should run, 
+    // then calls cycle() on the currently active queue. 
+    // This queue then handles the logic for its jobs, and may return a demoted job
     // When the currently active queue is totally blocked or done, go to the next queue.
 
-    start() {}
-    stop() {}
+    addQueue(queue) {
+        queue.setID(this.queues.length);
+        this.queues.push(queue);
+        
+    }
+
     addJob(job) {
-        this.queues[0].addJob(job);
+        if(this.queues.length > 0) {
+            job.setID(this.jobs.length);     // set the id of the job in the MLFQ
+            this.queues[0].addJob(job);
+        }
+        else {
+            console.log("You need some queues to add jobs to.");
+        }
+        this.jobs.push(job);
+
+    }
+
+    /*
+        Find the highest priority runnable queue:
+        start from the first and iterate until you find one that is runnable
+    */
+    highestPriorityRunnableQueue() {
+        let doneQueues = 0;
+        for(let i = 0; i < this.queues.length; i++) {
+            switch(this.queues[i].state) {
+                case States.READY:
+                    return this.queues[i];
+                case States.RUNNING:
+                    return this.queues[i];
+                case States.DONE:
+                    doneQueues++;
+                    break;
+                case States.BLOCKED:
+                    break;
+                default:
+                    console.log("queue is in an invalid state.");
+            }
+        }
+        if(doneQueues == this.queues.length) {
+            return States.DONE;
+        }
+        else {
+            return States.BLOCKED;
+        }
+    }
+
+    /*
+        Get the queue below the current queue.
+        Return the current queue if it's the bottom one.
+    */
+    queueBelow(queue) {
+        let queueIndex = this.queues.indexOf(queue);
+        if(queueIndex + 1 < this.queues.length) {
+            return this.queues[queueIndex + 1]
+        }
+        else {
+            return queue;
+        }
+    }
+
+
+    // Run a single clock cycle
+    cycle() {
+        let queue = this.highestPriorityRunnableQueue();
+        // console.log(queue);
+        if(queue == States.DONE) {   // all queues are done
+            console.log("All queues done!");
+            this.stop();
+            return;
+        }
+        if(queue == States.BLOCKED) {   
+            console.log("No queue runnable, at least one blocked.");
+            return;
+        }
+        // queue is a valid queue, so cycle it. 
+        let demotedJob = queue.cycle(this.cyclesElapsed);
+        if(demotedJob) {
+            this.queueBelow(queue).addJob(demotedJob);
+        }
+        this.cyclesElapsed++;
+    }
+
+    start() {
+        console.log("Starting the MLFQ!");
+        this.intervalID = setInterval(this.cycle.bind(this), this.cycleTime);
+    }
+
+    stop() {
+        console.log("Stopping the MLFQ");
+        clearInterval(this.intervalID);
+        this.intervalID = null;
     }
 
     priorityBoost() {
         // starting with the second queue, add all the queues' jobs to the top queue.
         for(let i=1; i<this.queues.length; i++) {
-            while(this.queues[i].length > 0) {
+            while(this.queues[i].jobs.length > 0) {
                 this.queues[0].addJob(this.queues[i].jobs.shift())
             }
         }
     }
 }
+
+export {MLFQ};
