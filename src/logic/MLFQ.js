@@ -92,7 +92,8 @@ class MLFQ {
 
     // Run a single clock cycle
     cycle() {
-        let queue = this.highestPriorityRunnableQueue();
+        let queue = this.
+        highestPriorityRunnableQueue();
         // console.log(queue);
         if(queue == States.DONE) {   // all queues are done
             console.log("All queues done!");
@@ -100,7 +101,7 @@ class MLFQ {
             return;
         }
         if(queue == States.BLOCKED) {   
-            console.log("No queue runnable, at least one blocked.");
+            console.log(`${this.cyclesElapsed}: ` + "No queue runnable, at least one blocked.");
             return;
         }
         // queue is a valid queue, so cycle it. 
@@ -109,6 +110,10 @@ class MLFQ {
             this.queueBelow(queue).addJob(demotedJob);
         }
         this.cyclesElapsed++;
+
+        if(this.cyclesElapsed % this.boostTime == 0) {
+            this.priorityBoost();
+        }
     }
 
     start() {
@@ -124,10 +129,13 @@ class MLFQ {
 
     priorityBoost() {
         // starting with the second queue, add all the queues' jobs to the top queue.
+        console.log("Priority boosting!");
         for(let i=1; i<this.queues.length; i++) {
             while(this.queues[i].jobs.length > 0) {
                 this.queues[0].addJob(this.queues[i].jobs.shift())
             }
+            this.queues[i].state = States.DONE; 
+            // after all jobs are removed from queues, their state should be reset to default of DONE
         }
     }
 }

@@ -11,7 +11,7 @@ import {Job} from "./job.js";
 
 function test() {
     // MLFQ(cycleTime, queueCount, BoostCycles)
-    let Scheduler = new MLFQ(0, 20);
+    let Scheduler = new MLFQ(0, 7);
 
     let Q1 = new Queue(2, 4);
     let Q2 = new Queue(2, 4);
@@ -20,7 +20,7 @@ function test() {
     Scheduler.addQueue(Q2);
 
     let jobs = []
-    for(let i = 0; i<5; i++) {
+    for(let i = 0; i<2; i++) {
         jobs.push(new Job(`j${i}`, 5, 0x20*i));
     }
     console.log(jobs);
