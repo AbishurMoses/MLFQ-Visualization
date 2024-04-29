@@ -1,38 +1,46 @@
 import './App.css'
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import QueueGraph from './components/QueueGraph'
 
 function App() {
-	const [massJobs, setMassJobs] = useState(true)
+	const [massJobs, setMassJobs] = useState(false)
 	var PD = []
+
+	function getRandomInt(max) {
+		return Math.floor(Math.random() * max);
+	}
 
 	const addJobs = (numOfJobs) => {
 		var i = 0;
 		while (i < numOfJobs) {
 			PD.push({
-				key: i,
-				length: "5",
-				interactivity: "1",
+				id: i,
+				length: getRandomInt(25),
+				interactivity: getRandomInt(3),
 			})
 			i++
 		}
 	}
 
-	const clearJobs = () => {
-		PD = []
-		setMassJobs(false)
-		console.log(massJobs)
+	useEffect(() => {
+		console.log('massJobs updated to ', massJobs);
+	}, [massJobs]);
+
+	const fnMassJobs = (bool) => {
+		setMassJobs(bool)
 	}
-	/*
-		Calls addJobs and changes massJobs to true
-	*/
+
 	const seedJobs = () => {
 		addJobs(3)
 		console.log(PD)
 
-		setMassJobs(false)
-		console.log(massJobs)
+		fnMassJobs(true)
+	}
+
+	const clearJobs = async () => {
+		PD = []
+		fnMassJobs(false)
 	}
 
 	return (
@@ -43,8 +51,9 @@ function App() {
 						<div id="workload-custom-job-cont">
 							<div id="workload">
 								{massJobs && (
-									PD.map((obj) => {
-										return <Job key={obj.key} value={obj} />
+									PD.map((obj, index) => {
+										// Why won't this work. PD.map doesn't work in html for some reason
+										return <Job key={index} value={obj} />
 									})
 								)}
 							</div>
