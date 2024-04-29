@@ -23,7 +23,7 @@ class Job {
     static startCycle;  // time job was last started
     static stopCycle;   // time job has been running since last started
     static interactivity;   // set the interactivity for the frequency and length of i/o
-    static ioRemaining; // track the amount of i/o remaining on the current i/o session
+    static ioUnblockCycle; // track the amount of i/o remaining on the current i/o session
 
     // length: Job length measured in clock cycles
     constructor(name, length, color, interactivity) {
@@ -35,7 +35,6 @@ class Job {
         this.progress = 0;
         this.startCycle = 0;
         this.stopCycle = 0;
-        this.ioRemaining = 0;
     }
 
     // handle for MLFQ scheduler to set its ID for this job. 
@@ -53,14 +52,31 @@ class Job {
         else if(this.state != States.RUNNING) {
             console.log(`Error when running job ${this.name}: job not runnable.`);
         }
-        this.progress++;
-        this.checkDone(cyclesElapsed + 1);  // done at end of cycle, so one more cycle has run.
 
-        // this.decideIO(cyclesElapsed);
+        
+        this.progress++;
+        if(!this.checkDone(cyclesElapsed + 1)) {
+            this.decideNextCycleIO(cyclesElapsed);
+        }  
+    }
+
+    checkIOStatus(cyclesElapsed) {
+        if(this.state == States.BLOCKED) {
+            if(this.ioUnblockCycle == cyclesElapsed) {
+                console.log(`${cyclesElapsed}: job ${this.name} done with i/o!`);
+                this.state = States.READY;
+                return true;
+            }
+        }
+        else {
+            return false;
+        }
     }
 
     /*
         Check if the job is done.
+        This occurs at the end of the cycle, so the cycles
+        that have passed will be one more than the cycle number.
     */
     checkDone(cyclesElapsed) {
         if(this.progress >= this.length) {
@@ -91,27 +107,43 @@ class Job {
     }
 
     /*
-        randomly begin an IO event based on the interactivity level.
+        generate a random i/o length based on the interactivity level
+        Lengths between 1 and 10 depending on interactivity level.
     */
-    decideIO(cyclesElapsed) {
-        if(cyclesElapsed % 2 == 0){
+    ioLength() {
+        return 1 + Math.floor(Math.random() * 3 * this.interactivity);
+    }
+
+    decideNextCycleIOFixed(cyclesElapsed) {
+        if(this.progress == 1) {  //
+            console.log(`${cyclesElapsed}: job ${this.name} entering i/o!`);
+            this.stopCycle = cyclesElapsed+1;   // the job will be blocked on the next cycle
             this.state = States.BLOCKED;
-            this.ioRemaining = 3;
+            this.ioUnblockCycle = cyclesElapsed + 3;
         }
     }
+
 
     /*
-        simulate an io event making progress.
-        Change the status according to the io event's progress
+        randomly begin an IO event based on the interactivity level.
+        TODO: make i/o random and based on interactivity level.
     */
-    incrementIO() {
-        if(this.ioRemaining > 0) {
-            this.ioRemaining--;
+    decideNextCycleIO(cyclesElapsed) {
+        // decide whether to do i/o proportionally to the interactivity level
+        // interactivity    chance of i/o
+        //      0                   0
+        //      1                   0.25
+        //      2                   0.625
+        //      3                   0.75
+        if(Math.random() < 0.1*this.interactivity) {
+            console.log(`${cyclesElapsed}: job ${this.name} entering i/o!`);
+            this.stopCycle = cyclesElapsed+1;
+            this.state = States.BLOCKED;
+            let length = this.ioLength()
+            this.ioUnblockCycle = cyclesElapsed + length + 1;
+            console.log(`Starting i/o with length ${length}`)
         }
-        else 
-            this.state = States.READY;
     }
-
 }
 
 export {States, Job};

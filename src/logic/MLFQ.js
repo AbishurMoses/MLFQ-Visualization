@@ -76,6 +76,16 @@ class MLFQ {
     }
 
     /*
+        update io status of all queues, 
+        by calling their function to check io status of all jobs
+    */
+    updateIOStatus() {
+        for(const queue of this.queues) {
+            queue.checkJobIOStatus(this.cyclesElapsed);
+        }
+    }
+
+    /*
         Get the queue below the current queue.
         Return the current queue if it's the bottom one.
     */
@@ -89,26 +99,27 @@ class MLFQ {
         }
     }
 
-
     // Run a single clock cycle
     cycle() {
-        let queue = this.
-        highestPriorityRunnableQueue();
+        this.updateIOStatus();
+        let queue = this.highestPriorityRunnableQueue();
         // console.log(queue);
         if(queue == States.DONE) {   // all queues are done
-            console.log("All queues done!");
+            console.log(`${this.cyclesElapsed}: MLFQ done!`);
             this.stop();
             return;
         }
-        if(queue == States.BLOCKED) {   
-            console.log(`${this.cyclesElapsed}: ` + "No queue runnable, at least one blocked.");
-            return;
+        else if(queue == States.BLOCKED) {   
+            console.log(`${this.cyclesElapsed}: MLFQ blocked!`);
         }
-        // queue is a valid queue, so cycle it. 
-        let demotedJob = queue.cycle(this.cyclesElapsed);
-        if(demotedJob) {
-            this.queueBelow(queue).addJob(demotedJob);
+        else {
+            // queue is a valid queue, so cycle it. 
+            let demotedJob = queue.cycle(this.cyclesElapsed);
+            if(demotedJob) {
+                this.queueBelow(queue).addJob(demotedJob);
+            }
         }
+
         this.cyclesElapsed++;
 
         if(this.cyclesElapsed % this.boostTime == 0) {
@@ -129,7 +140,7 @@ class MLFQ {
 
     priorityBoost() {
         // starting with the second queue, add all the queues' jobs to the top queue.
-        console.log("Priority boosting!");
+        console.log(`${this.cyclesElapsed}: Priority boosting!`);
         for(let i=1; i<this.queues.length; i++) {
             while(this.queues[i].jobs.length > 0) {
                 this.queues[0].addJob(this.queues[i].jobs.shift())
