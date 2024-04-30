@@ -2,8 +2,23 @@ import './App.css'
 import PidTable from './components/PidTable'
 import QueueGraph from './components/QueueGraph'
 import StatsTable from './components/StatsTable'
+import TimeChart from './components/TimeChart'
 
 function App() {
+
+    // TODO delete this after we have real data for the pie chart
+    const tempPieChartData = { 
+        contextSwitches: 1.9,
+        jobs: {
+            "Arc": 1.9,
+            "Microsoft Word": 4.2,
+            "Telegram": 0.92,
+            "Calendar": 4.4,
+            "Microsoft Teams": 4.2,
+            "Messages": 18.1,
+        }
+   }
+
 	return (
 		<div id="main">
 			<div id="top">
@@ -46,10 +61,7 @@ function App() {
 				<div id="table-container">
                     <PidTable></PidTable>
                     <StatsTable></StatsTable>
-					<div className="table-cols" id="time">
-						<p>Time Usage</p>
-						<div><h1>Graph!</h1></div>
-					</div>
+                    <TimeChart pieChartData={tempPieChartData}></TimeChart>
 				</div>
 			</div>
 		</div>
