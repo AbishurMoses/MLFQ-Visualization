@@ -1,13 +1,17 @@
 import './App.css'
 import './styles/Job.css'
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Job from './components/Job'
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import PidTable from './components/PidTable'
+import QueueGraph from './components/QueueGraph'
+import StatsTable from './components/StatsTable'
+import TimeChart from './components/TimeChart'
 
 /*	
 	Names cannot be the same
@@ -122,6 +126,19 @@ function App() {
 		})
 	}
 
+	// TODO delete this after we have real data for the pie chart
+	const tempPieChartData = {
+		contextSwitches: 1.9,
+		jobs: {
+			"Arc": 1.9,
+			"Microsoft Word": 4.2,
+			"Telegram": 0.92,
+			"Calendar": 4.4,
+			"Microsoft Teams": 4.2,
+			"Messages": 18.1,
+		}
+	}
+
 	return (
 		<div id="main">
 			<div id="top">
@@ -161,12 +178,29 @@ function App() {
 					</div>
 				</div>
 				<div id="MLFQ-container">
-
+					<QueueGraph />
+					<p>Controls</p>
+					<div id="controls">
+						<div className="cols" id="col1">
+							<p>Time Allotment per Queue</p>
+							<p>Time per RR slice</p>
+						</div>
+						<div className="cols" id="col2">
+							<div><input type="number" className="control-inp" id="allotment" min="1" max="10" step="1" value="3" />ms</div>
+							<div><input type="number" className="control-inp" id="rr-slice" min="1" max="10" step="1" value="3" />ms</div>
+						</div>
+						<div className="cols" id="col3">
+							<div>Queues: <input type="number" className="control-inp" id="queues" min="1" max="10" step="1" value="3" />ms</div>
+							<div>Time for Priority Boost: <input type="number" className="control-inp" id="boost" min="1" max="10" step="1" value="3" />ms</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div id="bottom">
 				<div id="table-container">
-
+					<PidTable></PidTable>
+					<StatsTable></StatsTable>
+					<TimeChart pieChartData={tempPieChartData}></TimeChart>
 				</div>
 			</div>
 		</div >

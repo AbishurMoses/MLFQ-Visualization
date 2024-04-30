@@ -137,5 +137,94 @@ p {
 
 .noncustom-btns {
   width: 80%;
-  height: 55%;
+  height: 70%;
+}
+
+#controls {
+  width: 80%;
+  height: 25%;
+  background-color: #e6e6e6;
+  display: flex;
+  justify-content: row;
+}
+
+/* CONTROLS */
+.cols {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: center;
+}
+
+#col2,
+#col3 {
+  justify-content: center;
+}
+
+.control-inp {
+  width: 23%;
+}
+
+#col1 {
+  width: 36%;
+}
+
+#col2 {
+  width: 20%;
+}
+
+div > #col2 {
+  text-align: center;
+}
+
+#col3 {
+  width: 44%;
+}
+
+/* ALL STATS */
+.table-cols {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+#stats {
+  width: 27.5%;
+}
+
+#time {
+  width: 27.5%;
+}
+
+#time > div {
+  width: 70%;
+  height: 85%;
+  background-color: purple;
+  text-align: center;
+}
+
+ul {
+  height: 100%;
+}
+
+li {
+  list-style: none;
+  margin: 10px 0 0 0;
+}
+
+#stats > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: white;
+  height: 85%;
+  width: 85%;
+}
+
+/* LOL */
+#graph {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
