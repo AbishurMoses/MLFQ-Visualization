@@ -24,7 +24,7 @@ function App() {
 	const [jobLength, setJobLength] = useState(0)
 	const [jobInteractivity, setJobInteractivity] = useState(0)
 	// Pre-determined Jobs
-	var PD = []
+	const [PD, setPD] = useState([])
 	// Jobs created by the user
 	var custom_jobs = []
 
@@ -50,106 +50,114 @@ function App() {
 	const addJobs = (numOfJobs) => {
 		var i = 0;
 		while (i < numOfJobs) {
-			PD.push({
+			setPD(prev => {
+				prev.push({
+				id: i,
 				name: "Job " + (i + 1).toString(),
 				length: getRandomInt(25),
-				interactivity: getRandomInt(3),
+				interactivity: getRandomInt(3)
 			})
-			i++
-		}
+			return prev
+		})
+		i++
 	}
+}
 
-	const resetInput = () => {
-		setJobName("")
-		setJobLength(0)
-		setJobInteractivity(0)
+const resetInput = () => {
+	setJobName("")
+	setJobLength(0)
+	setJobInteractivity(0)
+}
+
+useEffect(() => {
+	console.log('PD has been updated');
+}, [PD]);
+
+
+useEffect(() => {
+	console.log('massJobs updated to ', massJobs);
+}, [massJobs]);
+
+const fnMassJobs = (bool) => {
+	setMassJobs(bool)
+}
+
+const seedJobs = () => {
+	if (seedBtn == false) {
+		addJobs(3)
+		console.log(PD)
+
+		setSeedBtn(true)
+		fnMassJobs(true)
+	} else {
+		alert("Max jobs seeded")
 	}
+}
 
-	useEffect(() => {
-		console.log('massJobs updated to ', massJobs);
-	}, [massJobs]);
+const clearJobs = async () => {
+	setPD([])
 
-	const fnMassJobs = (bool) => {
-		setMassJobs(bool)
+	setSeedBtn(false)
+	fnMassJobs(false)
+}
+
+const handleJob = (event) => {
+	if (event.target.id == "job-name") {
+		setJobName(event.target.value)
 	}
-
-	const seedJobs = () => {
-		if (seedBtn == false) {
-			addJobs(3)
-			console.log(PD)
-
-			setSeedBtn(true)
-			fnMassJobs(true)
-		} else {
-			alert("Max jobs seeded")
-		}
+	if (event.target.name == "job-length") {
+		setJobLength(event.target.value)
 	}
-
-	const clearJobs = async () => {
-		PD = []
-
-		setSeedBtn(false)
-		fnMassJobs(false)
+	if (event.target.name == "job-interactivity") {
+		setJobInteractivity(event.target.value)
 	}
+}
 
-	const handleJob = (event) => {
-		if (event.target.id == "job-name") {
-			setJobName(event.target.value)
-		}
-		if (event.target.name == "job-length") {
-			setJobLength(event.target.value)
-		}
-		if (event.target.name == "job-interactivity") {
-			setJobInteractivity(event.target.value)
-		}
-	}
-
-	return (
-		<div id="main">
-			<div id="top">
-				<div id="container-workloads">
-					<div id="workload-cont">
-						<div id="workload-custom-job-cont">
-							<div id="workload">
-								{massJobs && (
-									PD.map((obj, index) => {
-										// Why won't this work. PD.map doesn't work in html for some reason
-										return <Job key={index} value={obj} />
-									})
-								)}
-							</div>
-							<div id="custom-job">
-								<Box
-									component="form"
-									id="job-input"
-									noValidate
-									autoComplete="off"
-								>
-									<TextField id="job-name" value={jobName} onChange={handleJob} label="Name" variant="outlined" />
-									<div className="input-container">
-										<p>Length</p>
-										<Slider name="job-length" className="sliders" value={jobLength} onChange={handleJob} defaultValue={25} valueLabelDisplay="auto" max={50} />
-									</div>
-									<div className="input-container">
-										<p>Inter</p>
-										<Slider name="job-interactivity" className="sliders" value={jobInteractivity} onChange={handleJob} defaultValue={1} valueLabelDisplay="auto" max={2} />
-									</div>
-								</Box>
-								<Stack id="job-btn-container">
-									<Button className="custom-btns" variant="contained" onClick={addJob}>Add</Button>
-									<Button className="custom-btns" variant="contained" onClick={resetInput}>Reset</Button>
-								</Stack>
-							</div>
+return (
+	<div id="main">
+		<div id="top">
+			<div id="container-workloads">
+				<div id="workload-cont">
+					<div id="workload-custom-job-cont">
+						<div id="workload">
+							{massJobs && (
+								PD.map((obj, index) => {
+									return <Job key={index} value={obj} />
+								})
+							)}
 						</div>
-						<div id="job-buttons">
-							<Button className="noncustom-btns" variant="contained" style={{ cursor: seedBtn ? "not-allowed" : "default" }} onClick={seedJobs}>Seed</Button>
-							<Button className="noncustom-btns" variant="contained" onClick={clearJobs}>Clear</Button>
+						<div id="custom-job">
+							<Box
+								component="form"
+								id="job-input"
+								noValidate
+								autoComplete="off"
+							>
+								<TextField id="job-name" value={jobName} onChange={handleJob} label="Name" variant="outlined" />
+								<div className="input-container">
+									<p>Length</p>
+									<Slider name="job-length" className="sliders" value={jobLength} onChange={handleJob} defaultValue={25} valueLabelDisplay="auto" max={50} />
+								</div>
+								<div className="input-container">
+									<p>Inter</p>
+									<Slider name="job-interactivity" className="sliders" value={jobInteractivity} onChange={handleJob} defaultValue={1} valueLabelDisplay="auto" max={2} />
+								</div>
+							</Box>
+							<Stack id="job-btn-container">
+								<Button className="custom-btns" variant="contained" onClick={addJob}>Add</Button>
+								<Button className="custom-btns" variant="contained" onClick={resetInput}>Reset</Button>
+							</Stack>
 						</div>
 					</div>
+					<div id="job-buttons">
+						<Button className="noncustom-btns" variant="contained" style={{ cursor: seedBtn ? "not-allowed" : "default" }} onClick={seedJobs}>Seed</Button>
+						<Button className="noncustom-btns" variant="contained" onClick={clearJobs}>Clear</Button>
+					</div>
 				</div>
-				<div id="MLFQ-container">
-					{/* <QueueGraph /> */}
-					{/* <div id="controls">
+			</div>
+			<div id="MLFQ-container">
+				{/* <QueueGraph /> */}
+				{/* <div id="controls">
 						<div className="cols" id="col1">
 							<p>Time Allotment per Queue</p>
 							<p>Time per RR slice</p>
@@ -163,11 +171,11 @@ function App() {
 							<div>Time for Priority Boost: <input type="number" className="control-inp" id="boost" min="1" max="10" step="1" value="3" />ms</div>
 						</div>
 					</div> */}
-				</div>
 			</div>
-			<div id="bottom">
-				<div id="table-container">
-					{/* <div className="table-cols" id="pid-table">
+		</div>
+		<div id="bottom">
+			<div id="table-container">
+				{/* <div className="table-cols" id="pid-table">
 						<p>Process Table</p>
 						<div><h1>Graph!</h1></div>
 					</div>
@@ -186,10 +194,10 @@ function App() {
 						<p>Time Usage</p>
 						<div><h1>Graph!</h1></div>
 					</div> */}
-				</div>
 			</div>
-		</div >
-	)
+		</div>
+	</div >
+)
 }
 
 export default App
