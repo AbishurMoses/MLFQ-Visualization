@@ -15,6 +15,9 @@ class MLFQ {
     static boostCycles;     // (int) time between priority boosts
     static cyclesElapsed;   // (int) the elapsed clock cycle count
     static state;
+    static avgTurnaroundTime;  // map<int, int> maps the jobID to its turnaround time
+    static responseTime;    // map<jobID, cycle> maps the jobID to its arrival time for use in response time
+    static avgResponseTime; // (number) the average response time for all jobs once MLFQ finishes
     
     constructor(cycleTime, boostCycles) {
         this.queues = [];
@@ -23,6 +26,9 @@ class MLFQ {
         this.boostTime = boostCycles;
         this.cyclesElapsed = 0; 
         this.state = States.READY
+        this.avgTurnaroundTime = 0;
+        this.arriveCycles = new Map(null);
+        this.avgResponseTime = 0;
     }
 
     // The clock is owned by the MLFQ, which decides which queue should run, 
@@ -33,13 +39,13 @@ class MLFQ {
     addQueue(queue) {
         queue.setID(this.queues.length);
         this.queues.push(queue);
-        
     }
 
     addJob(job) {
         if(this.queues.length > 0) {
-            job.setID(this.jobs.length);     // set the id of the job in the MLFQ
+            job.setup(this.jobs.length);
             this.queues[0].addJob(job);
+            this.arriveCycles.set(job.id, this.cyclesElapsed);
         }
         else {
             console.log("You need some queues to add jobs to.");
@@ -56,9 +62,6 @@ class MLFQ {
         for(let i = 0; i < this.queues.length; i++) {
             if(this.queues[i].state == States.READY || this.queues[i].state == States.RUNNING) {
                 return this.queues[i];
-            }
-            else {
-                console.log("queue is in an invalid state.");
             }
         }
     }
@@ -148,6 +151,28 @@ class MLFQ {
         console.log("Stopping the MLFQ");
         clearInterval(this.intervalID);
         this.intervalID = null;
+        this.calculateStats();
+    }
+
+    calculateStats() {
+        let turnaroundTimes = 0;
+        let responseTimes = 0;
+        for(const queue of this.queues) {
+            for(const job of queue.jobs) {
+                let turnaroundTime = job.finishCycle - this.arriveCycles.get(job.id);
+                console.log(`Turnaround time for job ${job.id}: ${turnaroundTime}`);
+                turnaroundTimes += turnaroundTime;
+
+                let responseTime = job.beginCycle - this.arriveCycles.get(job.id);
+                console.log(`Response time for job ${job.id}: ${responseTime}`)
+                responseTimes += responseTime;
+            }
+        }
+        console.log(turnaroundTimes);
+        console.log(responseTimes)
+
+        this.avgResponseTime = responseTimes / this.jobs.length;
+        this.avgTurnaroundTime = turnaroundTimes / this.jobs.length;
     }
 
     priorityBoost() {

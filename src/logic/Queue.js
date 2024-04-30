@@ -147,6 +147,10 @@ class Queue {
             let job = this.currentJob();
             switch(job.state) {
                 case States.READY:
+                    if(job.lastStartCycle() == null) {
+                        // the job will begin this cycle.
+                        job.setBeginCycle(cyclesElapsed);
+                    }
                     return job;
                 case States.RUNNING:
                     if(this.RRcyclesDone(job, cyclesElapsed)) { this.stopJob(job, cyclesElapsed); }
