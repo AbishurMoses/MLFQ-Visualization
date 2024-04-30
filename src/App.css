@@ -81,8 +81,19 @@ p {
 #custom-job {
   height: 100%;
   width: 40%;
-  background-color: purple;
+  /* background-color: purple; */
   display: flex;
+}
+
+#workload {
+  flex-direction: column;
+  overflow-y: auto; 
+  padding: 0px 5% 0 5%;
+  gap: 5%;
+  background-color: white;
+}
+
+#custom-job {
   justify-content: center;
 }
 
@@ -121,7 +132,7 @@ p {
   align-items: center;
   gap: 20px;
   width: 50%;
-  padding-left: 6%
+  padding-left: 6%;
 }
 
 .noncustom-btns {
