@@ -28,11 +28,11 @@ function test() {
         Scheduler.addJob(job);
     }
     Scheduler.start();
-    setTimeout(() => {
-        for(const queue of Scheduler.queues) {
-            console.log(queue.jobBlocks)
-        }
-    }, 60)
+    // setTimeout(() => {
+    //     for(const queue of Scheduler.queues) {
+    //         console.log(queue.jobBlocks)
+    //     }
+    // }, 60)
 }
 
 test();

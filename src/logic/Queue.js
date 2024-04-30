@@ -6,7 +6,7 @@ Create a single queue who runs jobs in round-robin
 */
 
 import {JobBlock} from "./jobBlock.js";
-import {States} from "./job.js";
+import {States, Job} from "./job.js";
 
 class Queue {
     // TODO: Add functionality for i/o. How do jobs move from blocked to running to ready?
@@ -18,7 +18,7 @@ class Queue {
     static RRcycles;        // number of machine cycles between RR switches
     static jobs;            // Array<Job> Jobs in the queue
     static jobBlocks;       // Array<JobBlock> history of jobs run in this queue for graphing.
-    static currentJob;      // TODO: MAKE THIS AN ACTUAL JOB the index of the current job
+    static currentJobIndex;      // TODO: MAKE THIS AN ACTUAL JOB the index of the current job
     static queueTimeout;    // clock cycle limit for a job to run in the queue
     static state;           // is the queue ready to run?
 
@@ -32,7 +32,7 @@ class Queue {
         this.jobRuntime = new Map();
         this.jobs = [];
         this.jobBlocks = [];
-        this.currentJob = 0;
+        this.currentJobIndex = 0;
         this.state = States.DONE;   // A new queue with no jobs is done by default
     }
 
@@ -41,6 +41,13 @@ class Queue {
     */
     setID(id) {
         this.id = id;
+    }
+
+    /*
+        get the current job
+    */
+    currentJob() {
+        return this.jobs[this.currentJobIndex % this.jobs.length];
     }
 
     /*
@@ -54,7 +61,7 @@ class Queue {
         let job = this.nextRRJob(cyclesElapsed);
         if(job) {   // A runnable job has been found in the queue.
             this.run(job, cyclesElapsed);
-            return this.checkForDemotion(this.jobs[this.currentJob], cyclesElapsed + 1);
+            return this.checkForDemotion(this.currentJob(), cyclesElapsed + 1);
         }
 
         console.log(`${cyclesElapsed}: queue ${this.id} ${this.state}.`)
@@ -131,13 +138,13 @@ class Queue {
         >return: State or Job.
     */
     nextRRJob(cyclesElapsed) {
-        let doneJobs = 0;
-        let blockedJobs = 0;
         // 1. check the current job for runnability
         // 2. check if all jobs are done or blocked
         // 3. go the next job
-        for(this.currentJob; doneJobs + blockedJobs != this.jobs.length; this.nextJob()) {
-            let job = this.jobs[this.currentJob];
+        let doneJobs = 0;
+        let blockedJobs = 0;
+        for(this.currentJobIndex; doneJobs + blockedJobs != this.jobs.length; this.currentJobIndex++) {
+            let job = this.currentJob();
             switch(job.state) {
                 case States.READY:
                     return job;
@@ -149,21 +156,11 @@ class Queue {
                     doneJobs++;
                     break;
                 case States.BLOCKED: 
-                    if(job.checkIOStatus(cyclesElapsed)) // check if the job is done with IO
-                        return job;
-                    else
-                        blockedJobs++;
+                    blockedJobs++;
                     break;
                 default:
                     console.log(`job ${job.name} is in an invalid state.`); 
             }
-        }
-        
-        if(doneJobs == this.jobs.length) {
-            this.state = States.DONE;
-        }
-        else {
-            this.state = States.BLOCKED;
         }
     }
 
@@ -188,7 +185,7 @@ class Queue {
         move current to point to the next job
     */
     nextJob() {
-        if(this.currentJob == this.jobs.length - 1) {
+        if(this.currentJob >= this.jobs.length - 1) {
             this.currentJob = 0;
         }
         else {
@@ -208,20 +205,35 @@ class Queue {
     }
 
     /*
-        Check io state for all jobs. 
+        Update the state of the queue based on the state of the jobs.
         Provides a handle for the MLFQ to update the status of a blocked queue.
-        >return: bool
+        >return: null
     */
-    checkJobIOStatus(cyclesElapsed) {
+    updateState(cyclesElapsed) {
+        let doneCount = 0;
+        let blockedCount = 0;
         for(const job of this.jobs) {
-            if(job.checkIOStatus(cyclesElapsed)) {
-                this.state = States.READY;
-                return true;
+            job.updateState(cyclesElapsed);
+            switch(job.state) {
+                case States.DONE:
+                    doneCount++;
+                    break;
+                case States.BLOCKED:
+                    blockedCount++;
+                    break;
             }
         }
-        return false;
+        if(doneCount + blockedCount < this.jobs.length) {
+            // at least one job is runnable.
+            this.state = States.READY;
+        }
+        else if(doneCount == this.jobs.length) {
+            this.state = States.DONE;
+        }
+        else {
+            this.state = States.BLOCKED;
+        }
     }
-
 }
 
 export {Queue}

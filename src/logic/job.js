@@ -60,16 +60,29 @@ class Job {
         }  
     }
 
-    checkIOStatus(cyclesElapsed) {
-        if(this.state == States.BLOCKED) {
-            if(this.ioUnblockCycle == cyclesElapsed) {
-                console.log(`${cyclesElapsed}: job ${this.name} done with i/o!`);
-                this.state = States.READY;
-                return true;
-            }
-        }
-        else {
-            return false;
+    /*
+        update the state of the job.
+        - IO done: BLOCKED -> READY
+        - Job done: RUNNING -> DONE
+
+    */
+    updateState(cyclesElapsed) {
+        switch(this.state) {
+            case States.BLOCKED:
+                if(this.ioUnblockCycle == cyclesElapsed) {
+                    console.log(`${cyclesElapsed}: job ${this.name} done with i/o!`);
+                    this.state = States.READY;
+                }
+                break;
+            case States.RUNNING:
+                this.checkDone();
+                break;
+            case States.READY:
+                break;
+            case States.DONE:
+                break;
+            default:
+                console.log(`Job ${this.name} is in an invalid state!`);
         }
     }
 

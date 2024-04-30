@@ -14,6 +14,7 @@ class MLFQ {
     static cycleTime;       // (int) time in ms for each clock cycle
     static boostCycles;     // (int) time between priority boosts
     static cyclesElapsed;   // (int) the elapsed clock cycle count
+    static state;
     
     constructor(cycleTime, boostCycles) {
         this.queues = [];
@@ -21,6 +22,7 @@ class MLFQ {
         this.cycleTime = cycleTime;
         this.boostTime = boostCycles;
         this.cyclesElapsed = 0; 
+        this.state = States.READY
     }
 
     // The clock is owned by the MLFQ, which decides which queue should run, 
@@ -51,27 +53,13 @@ class MLFQ {
         start from the first and iterate until you find one that is runnable
     */
     highestPriorityRunnableQueue() {
-        let doneQueues = 0;
         for(let i = 0; i < this.queues.length; i++) {
-            switch(this.queues[i].state) {
-                case States.READY:
-                    return this.queues[i];
-                case States.RUNNING:
-                    return this.queues[i];
-                case States.DONE:
-                    doneQueues++;
-                    break;
-                case States.BLOCKED:
-                    break;
-                default:
-                    console.log("queue is in an invalid state.");
+            if(this.queues[i].state == States.READY || this.queues[i].state == States.RUNNING) {
+                return this.queues[i];
             }
-        }
-        if(doneQueues == this.queues.length) {
-            return States.DONE;
-        }
-        else {
-            return States.BLOCKED;
+            else {
+                console.log("queue is in an invalid state.");
+            }
         }
     }
 
@@ -79,9 +67,29 @@ class MLFQ {
         update io status of all queues, 
         by calling their function to check io status of all jobs
     */
-    updateIOStatus() {
+    updateState() {
+        let doneCount = 0;
+        let blockedCount = 0;
         for(const queue of this.queues) {
-            queue.checkJobIOStatus(this.cyclesElapsed);
+            queue.updateState(this.cyclesElapsed);
+            switch(queue.state) {
+                case States.DONE:
+                    doneCount++;
+                    break;
+                case States.BLOCKED:
+                    blockedCount++;
+                    break;
+
+            }
+        }
+        if(doneCount + blockedCount < this.queues.length) {
+            this.state = States.RUNNING;
+        }
+        else if(doneCount == this.queues.length) {
+            this.state = States.DONE;
+        }
+        else {
+            this.state = States.BLOCKED;
         }
     }
 
@@ -101,19 +109,22 @@ class MLFQ {
 
     // Run a single clock cycle
     cycle() {
-        this.updateIOStatus();
-        let queue = this.highestPriorityRunnableQueue();
-        // console.log(queue);
-        if(queue == States.DONE) {   // all queues are done
+        // 1. UPDATE STATE
+        this.updateState();
+        if(this.state == States.DONE) {
             console.log(`${this.cyclesElapsed}: MLFQ done!`);
             this.stop();
             return;
         }
-        else if(queue == States.BLOCKED) {   
+        else if(this.state == States.BLOCKED) {   
             console.log(`${this.cyclesElapsed}: MLFQ blocked!`);
         }
+
+        // 2. If in a runnable state, RUN A QUEUE
         else {
-            // queue is a valid queue, so cycle it. 
+            let queue = this.highestPriorityRunnableQueue();
+
+            // 3. DEMOTE A JOB
             let demotedJob = queue.cycle(this.cyclesElapsed);
             if(demotedJob) {
                 this.queueBelow(queue).addJob(demotedJob);
@@ -122,6 +133,7 @@ class MLFQ {
 
         this.cyclesElapsed++;
 
+        // 4. PRIORITY BOOST
         if(this.cyclesElapsed % this.boostTime == 0) {
             this.priorityBoost();
         }
