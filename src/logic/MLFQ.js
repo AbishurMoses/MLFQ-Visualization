@@ -48,7 +48,7 @@ class MLFQ {
     // When the currently active queue is totally blocked or done, go to the next queue.
 
     addQueue(queue) {
-        queue.setID(this.queues.length);
+        queue.setup(this.queues.length, this.cycleTime);
         this.queues.push(queue);
     }
 
