@@ -77,8 +77,8 @@ const QueueGraph = (props) => {
             <Table size="small">
                 <TableBody>
                     <TableRow>
-                        <LightTableCell sx={{ color: 'white' }}>ID</LightTableCell>
-                        <LightTableCell align="right">{jobRun.job}</LightTableCell>
+                        <LightTableCell sx={{ color: 'white' }}>Name</LightTableCell>
+                        <LightTableCell align="right">{jobRun.jobName}</LightTableCell>
                     </TableRow>
                     <TableRow>
                         <LightTableCell>Start</LightTableCell>
