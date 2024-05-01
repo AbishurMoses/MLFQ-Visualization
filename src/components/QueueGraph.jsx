@@ -1,39 +1,9 @@
 import { Card, Paper, Table, TableBody, TableCell, TableRow, Tooltip, Typography } from "@mui/material";
 import { styled } from "@mui/system";
-import { useEffect } from "react";
 
 const QueueGraph = (props) => {
     const { queueData } = props;
 
-    useEffect(() => { // TODO delete me
-        console.log('queueData:')
-        console.dir(queueData)
-    }, [queueData])
-    // console.log('data')
-    // console.dir(queueData)
-    const data = { // TEMPORARY, delete this eventually
-        currentTime: 50,
-        queues: [
-            [
-                // {start: , length: , job: , name: , color: ,},
-                { start: 0, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
-                { start: 5, length: 8, job: 2, name: "something", color: "#ffee4c", },
-                { start: 20, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
-                { start: 27, length: 12, job: 2, name: "something", color: "#ffee4c", },
-            ],
-            [
-                { start: 0, length: 6, job: 1, name: "quicksand", color: "#2a2a2a", },
-                { start: 20, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
-                { start: 27, length: 12, job: 2, name: "something", color: "#ffee4c", },
-            ],
-            [
-                { start: 6, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
-                { start: 14, length: 8, job: 2, name: "something", color: "#ffee4c", },
-                { start: 22, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
-                { start: 30, length: 12, job: 2, name: "something", color: "#ffee4c", },
-            ],
-        ]
-    }
     const queueGap = 15;
     const queueHeight = 32;
     const queueContainerPL = 16;

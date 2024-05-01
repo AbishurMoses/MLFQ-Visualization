@@ -5,6 +5,7 @@
     Create the MLFQ scheduler
 */
 
+import jobColors from "../services/colors.js";
 import {States} from "./job.js";
 
 class MLFQ {
@@ -30,16 +31,7 @@ class MLFQ {
         this.avgTurnaroundTime = 0;
         this.arriveCycles = new Map(null);
         this.avgResponseTime = 0;
-        this.colors = [
-            '#78c0e0', '#bd1e1e', // don't include first color from TimeChart.jsx in order to sync them
-            '#3a5a40', '#ff7f51', '#fcf6b1',
-            '#f7b32b', '#8447ff', '#7180ac',
-            '#ff8cc6', '#d34e24', '#a2ad91',
-            '#86cb92', '#694873', '#ffe3dc',
-            '#f72c25', '#331e36', '#cd5d67',
-            '#e9b872', '#c2efeb', '#d00000',
-            '#686963', '#d6d1b1', '#ffb2e6'
-          ]
+        this.colors = jobColors.slice(1); // don't include first color from TimeChart.jsx in order to sync them
         this.idCounter = 0;
     }
 
@@ -57,9 +49,7 @@ class MLFQ {
         if(this.queues.length > 0) {
             const jobId = this.idCounter++;
             let color = this.colors[jobId];
-            // job.setup(this.jobs.length, color);
             job.setup(jobId, color);
-            // job.setup(this.jobs.length);
             this.queues[0].addJob(job);
             this.arriveCycles.set(job.id, this.cyclesElapsed);
         }
