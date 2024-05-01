@@ -40,6 +40,7 @@ function App() {
 	const [seedBtn, setSeedBtn] = useState(false)
 	const [jobName, setJobName] = useState("")
 	const [jobLength, setJobLength] = useState(0)
+    const [jobInteractivity, setJobInteractivity] = useState(0);
 	// For generating pre-determined Jobs 
 	const [PD, setPD] = useState([])
 	const [jobs, setJobs] = useState([])
@@ -59,14 +60,10 @@ function App() {
 		if (jobName == "") {
 			alert("Add a name dommy")
 		} else {
-			setJobs(prev => {
-				prev.push({
-					id: jobId.current,
-					name: jobName,
-					length: jobLength,
-				})
-				return prev
-			})
+            let job = new Job(jobName, jobLength, jobInteractivity);
+            fnMassJobs(true);
+            setPD(prev => [...prev, job]);
+			setJobs(prev => [...prev, job]);
 			increment()
 		}
 		console.log(jobs)
@@ -91,23 +88,12 @@ function App() {
 	const addJobs = (numOfJobs) => {
 		var i = 0;
 		while (i < numOfJobs) {
-			setPD(prev => {
-				prev.push({
-					id: jobId.current,
-					name: "Job " + (jobId.current + 1).toString(),
-					length: getRandomInt(25),
-				})
-				return prev
-			})
-			setJobs(prev => {
-				prev.push({
-					id: jobId.current,
-					name: "Job " + (jobId.current + 1).toString(),
-					length: getRandomInt(25),
-				})
-				return prev
-			})
-			increment()
+            let len = getRandomInt(25);
+            let interactivity = getRandomInt(3);
+            let job = new Job("Job " + (jobId.current + 1).toString(), len, interactivity);
+            setPD(prev => [...prev, job])
+            setJobs(prev => [...prev, job])
+			increment();
 			i++
 		}
 
@@ -157,6 +143,9 @@ function App() {
 		}
 		if (event.target.name == "job-length") {
 			setJobLength(event.target.value)
+		}
+        if (event.target.name == "job-interactivity") {
+			setJobInteractivity(event.target.value)
 		}
 	}
 
@@ -243,9 +232,9 @@ function App() {
         console.log('starting pollANdUpdateState()');
         
         // update queueData
-        const currentTime = mlfq.cyclesElapsed * clockCycleTime;
+        const currentTime = mlfq.current.cyclesElapsed * clockCycleTime;
         const queues = []
-        for (let queue of mlfq.queues) {
+        for (let queue of mlfq.current.queues) {
             queues.push(queue.jobBlocks)
         }
         setQueueData({currentTime, queues});
@@ -330,6 +319,10 @@ function App() {
 										<p>Length</p>
 										<Slider name="job-length" className="sliders" value={jobLength} onChange={handleJob} defaultValue={25} valueLabelDisplay="auto" max={50} />
 									</div>
+                                    <div className="input-container">
+										<p>Interactivity</p>
+										<Slider name="job-interactivity" className="sliders" value={jobInteractivity} onChange={handleJob} defaultValue={5} valueLabelDisplay="auto" max={10} />
+									</div>
 								</Box>
 								<Stack id="job-btn-container">
 									<Button className="custom-btns" variant="contained" onClick={addJob}>Add</Button>
@@ -347,6 +340,7 @@ function App() {
 					<QueueGraph queueData={queueData}/>
 					<p>Controls</p>
 					<div id="controls">
+                        <button className="cols" onClick={startScheduler}>Start</button>
 						<div className="cols" id="col1">
 							<p>Time Allotment per Queue</p>
 							<p>Time per RR slice</p>
