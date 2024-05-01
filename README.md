@@ -1,5 +1,6 @@
 
 # MLFQ Visualization
+Authors: Corbin Weiss, Abishur Moses-Pakkianathan, and Allen Gustrowsky
 
 ## Description
 This is a visualization/simulator of a scheduler that uses the MLFQ algorithm. The goal is to aid students in understanding the MLFQ algorithm. 
