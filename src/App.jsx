@@ -20,23 +20,18 @@ import { Paper, Typography } from '@mui/material';
 	Names cannot be the same
 */
 function App() {
-    // let scheduler; // MLFQ
-    // let mlfq; // MLFQ
     const mlfq = useRef(null);
     let checker; // setTimeout that polls the mlfq
-    let starter;
-    // const [mlfq, setMlfq] = useState(null)
-    const [clockCycleTime, setClockCycleTime] = useState(1); // MLFQ.cycleTime // TODO hook this up be reactive with the UI (speed), also it was a value of 50 initially - depends on job length
-    const [allotPerQueue, setAllotPerQueue] = useState(4); // Queue.queueTimeout // TODO hook this up be reactive with the UI
-    const [timePerRrSlice, setTimePerRrSlice] = useState(3); // Queue.RRcycles // TODO hook this up be reactive with the UI
-    const [timeBetweenBoosts, setTimeBetweenBoosts] = useState(110); // MLFQ.boostCycles // TODO hook this up be reactive with the UI
+    const [clockCycleTime, setClockCycleTime] = useState(1); // MLFQ.cycleTime
+    const [allotPerQueue, setAllotPerQueue] = useState(4); // Queue.queueTimeout
+    const [timePerRrSlice, setTimePerRrSlice] = useState(3); // Queue.RRcycles
+    const [timeBetweenBoosts, setTimeBetweenBoosts] = useState(110); // MLFQ.boostCycles
     const [contextSwitchLen, setContextSwitchLen] = useState(0.2);
     
     const [queueData, setQueueData] = useState({currentTime: 0, queues: [[], [], []]})
     const [pidData, setPidData] = useState([]);
     const [statsTableData, setStatsTableData] = useState({avgResponse: 0, avgTurnaround: 0, avgJobLength: 0, timeInContextSwitching: 0});
     const [pieChartData, setPieChartData] = useState({contextSwitches: 0, jobs: {}})
-    // const [jobs, setJobs] = useState([new Job('j1', 54, '#78c0e0', 1), new Job('j2', 54, '#bd1e1e', 0), new Job('j3', 64, '#3a5a40', 2), new Job('j4', 44, '#ff7f51', 0), new Job('j5', 34, '#fcf6b1', 0)])
 	const [massJobs, setMassJobs] = useState(false)
 	const [seedBtn, setSeedBtn] = useState(false)
 	const [jobName, setJobName] = useState("")
@@ -196,22 +191,8 @@ function App() {
 
     // setup scheduler and queues
    useEffect(() => {
-        console.log('setting up')
-        // setTimePerRrSlice(timePerRrSlice * 3); // base time in queue off of number of cycles per queue
-        // scheduler = new MLFQ(clockCycleTime, timeBetweenBoosts);
         setupMlfq();
-        // mlfq = new MLFQ(clockCycleTime, timeBetweenBoosts);
-        
-        // scheduler.addQueue(queue1);
-        // scheduler.addQueue(queue2);
-        // scheduler.addQueue(queue3);
-        
-        // setMlfq(scheduler);
-        // addJobs()
 
-        // starter = setTimeout(startScheduler, 1000); // TODO delete all this below when it's hooked up to "start" btn
-        // populate queueData
-        // setQueueData(prev => {return {...prev, queues: [queue1.jobBlocks, queue2.jobBlocks, queue3.jobBlocks]}});
         return () => {
             if (checker) clearInterval(checker); // clean up state polling timeout on unmount
         }
@@ -231,19 +212,10 @@ function App() {
     }
 
     useEffect(() => {
-    // const addJobs = () => {
-        // console.log('adding jobs')
-        // console.log(`mlfq type: ${mlfq.constructor.name}`);
-        // clear mlfq jobs
-
-        // re-add them
         for (let job of jobs) {
             mlfq.current.addJob(job);
         }
-        console.log('finnised adding jobs')
-        console.dir(mlfq)
-    // }
-    }, [jobs]) // TODO may need to hook this up to the right jobs state once it's merged in
+    }, [jobs])
 
    // run the MLFQ 
    const startScheduler = () => {
@@ -253,10 +225,9 @@ function App() {
         console.log('about to call start()')
         console.dir(mlfq)
         mlfq.current.start();
-        clearTimeout(starter) //TODO delete this once you're done with "starter"
         
         // setTimeOut poll for scheduler changes and update state accordingly
-        checker = setInterval(pollAndUpdateState, clockCycleTime*10); // TODO clear this when the component unmounts
+        checker = setInterval(pollAndUpdateState, clockCycleTime*10);
    }
 
    // polls the scheduler's state and updates app state accordingly to update the UI
