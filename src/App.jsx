@@ -23,6 +23,7 @@ function App() {
     const [queueData, setQueueData] = useState({currentTime: 0, queues: [[], [], []]})
     const [pidData, setPidData] = useState([]);
     const [statsTableData, setStatsTableData] = useState({avgResponse: '_', avgTurnaround: '_', avgJobLength: '_', timeInContextSwitching: '_'});
+    const [pieChartData, setPieChartData] = useState({contextSwitches: 0, jobs: {}})
     const [jobs, setJobs] = useState([new Job('j1', 54, '#78c0e0', 1), new Job('j2', 54, '#bd1e1e', 0), new Job('j3', 64, '#3a5a40', 2), new Job('j4', 44, '#ff7f51', 0), new Job('j5', 34, '#fcf6b1', 0)])
 
     // TODO delete this after we have real data for the pie chart
@@ -83,6 +84,17 @@ function App() {
         }
         setPidData(data);
 
+        // update pieChartData
+        const jobData = {};
+        for (let job of mlfq.jobs) {
+            jobData[job.name] = job.length;
+        }
+        const contextSwitchCount = mlfq.queues.reduce((total, queue) => total + queue.jobBlocks.length, 0);
+        setPieChartData({
+            contextSwitches: contextSwitchCount,
+            jobs: jobData,
+        })
+
         if (mlfq.state === States.DONE) {
             setSummaryData();
             console.log('going to stop polling now')
@@ -107,8 +119,6 @@ function App() {
             avgJobLength,
             timeInContextSwitching: contextSwitchCount * contextSwitchLen,
         })
-        console.log('set stats table data')
-        // update pieChartData
    }
 
    // setup scheduler and queues
@@ -195,7 +205,7 @@ function App() {
 				<div id="table-container">
                     <PidTable pidData={pidData}></PidTable>
                     <StatsTable statsTableData={statsTableData}></StatsTable>
-                    <TimeChart pieChartData={tempPieChartData}></TimeChart>
+                    <TimeChart pieChartData={pieChartData}></TimeChart>
 				</div>
 			</div>
 		</div>
