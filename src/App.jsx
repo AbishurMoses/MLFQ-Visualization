@@ -15,6 +15,7 @@ import { MLFQ } from './logic/MLFQ'
 import { Queue } from './logic/Queue'
 import { Job, States } from './logic/job'
 import { Paper, Typography } from '@mui/material';
+import jobColors from './services/colors';
 
 /*	
 	Names cannot be the same
@@ -42,16 +43,7 @@ function App() {
 	const [jobs, setJobs] = useState([])
 	const [seedIds, setSeedIds] = useState([])
     const [colors, setColors] = useState(['#af4d98'])
-    const [chartColors, setChartColors] = useState([
-            '#af4d98', '#78c0e0', '#bd1e1e',
-            '#3a5a40', '#ff7f51', '#fcf6b1',
-            '#f7b32b', '#8447ff', '#7180ac',
-            '#ff8cc6', '#d34e24', '#a2ad91',
-            '#86cb92', '#694873', '#ffe3dc',
-            '#f72c25', '#331e36', '#cd5d67',
-            '#e9b872', '#c2efeb', '#d00000',
-            '#686963', '#d6d1b1', '#ffb2e6'
-        ])
+    const [chartColors, setChartColors] = useState(jobColors)
 	var jobId = useRef(0)
 
 	const getRandomInt = (max) => {
