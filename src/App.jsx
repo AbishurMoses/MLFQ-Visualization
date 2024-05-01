@@ -14,6 +14,7 @@ import TimeChart from './components/TimeChart'
 import { MLFQ } from './logic/MLFQ'
 import { Queue } from './logic/Queue'
 import { Job, States } from './logic/job'
+import { Paper, Typography } from '@mui/material';
 
 /*	
 	Names cannot be the same
@@ -27,7 +28,7 @@ function App() {
     // const [mlfq, setMlfq] = useState(null)
     const [clockCycleTime, setClockCycleTime] = useState(1); // MLFQ.cycleTime // TODO hook this up be reactive with the UI (speed), also it was a value of 50 initially - depends on job length
     const [allotPerQueue, setAllotPerQueue] = useState(4); // Queue.queueTimeout // TODO hook this up be reactive with the UI
-    const [timePerRrSlice, setTimePerRrSlice] = useState(null); // Queue.RRcycles // TODO hook this up be reactive with the UI
+    const [timePerRrSlice, setTimePerRrSlice] = useState(3); // Queue.RRcycles // TODO hook this up be reactive with the UI
     const [timeBetweenBoosts, setTimeBetweenBoosts] = useState(110); // MLFQ.boostCycles // TODO hook this up be reactive with the UI
     const [contextSwitchLen, setContextSwitchLen] = useState(0.1);
     
@@ -149,6 +150,27 @@ function App() {
 		}
 	}
 
+    const handleConfig = (event) => {
+        const { value } = event.target;
+        switch (event.target.id) {
+            case 'allotment': 
+                setAllotPerQueue(value);
+                break;
+            case 'rr-slice':
+                setTimePerRrSlice(value);
+                break;
+            case 'clock-cycle-length':
+                setClockCycleTime(value);
+                break;
+            case 'boost':
+                setTimeBetweenBoosts(value);
+                break;
+            default:
+                break;
+        }
+        setupMlfq();
+    }
+
 	const jobDeletion = (data, jobName) => {
 		setPD(prev => {
 			prev = PD.filter(item => item.id !== data)
@@ -172,22 +194,15 @@ function App() {
     // setup scheduler and queues
    useEffect(() => {
         console.log('setting up')
-        setTimePerRrSlice(timePerRrSlice * 3); // base time in queue off of number of cycles per queue
+        // setTimePerRrSlice(timePerRrSlice * 3); // base time in queue off of number of cycles per queue
         // scheduler = new MLFQ(clockCycleTime, timeBetweenBoosts);
-
+        setupMlfq();
         // mlfq = new MLFQ(clockCycleTime, timeBetweenBoosts);
-        mlfq.current = new MLFQ(clockCycleTime, timeBetweenBoosts);
-        console.log('set mlfq')
-        console.dir(mlfq)
-        const queue1 = new Queue(timePerRrSlice, allotPerQueue);
-        const queue2 = new Queue(timePerRrSlice, allotPerQueue*2); // allow jobs to run longer in lower-priority queues
-        const queue3 = new Queue(timePerRrSlice, allotPerQueue*3);
+        
         // scheduler.addQueue(queue1);
         // scheduler.addQueue(queue2);
         // scheduler.addQueue(queue3);
-        mlfq.current.addQueue(queue1);
-        mlfq.current.addQueue(queue2);
-        mlfq.current.addQueue(queue3);
+        
         // setMlfq(scheduler);
         // addJobs()
 
@@ -198,6 +213,19 @@ function App() {
             if (checker) clearInterval(checker); // clean up state polling timeout on unmount
         }
     }, [])
+
+    const setupMlfq = () => {
+        mlfq.current = new MLFQ(clockCycleTime, timeBetweenBoosts);
+        console.log('set mlfq')
+        console.dir(mlfq)
+        const queue1 = new Queue(timePerRrSlice, allotPerQueue);
+        const queue2 = new Queue(timePerRrSlice, allotPerQueue*2); // allow jobs to run longer in lower-priority queues
+        const queue3 = new Queue(timePerRrSlice, allotPerQueue*3);
+
+        mlfq.current.addQueue(queue1);
+        mlfq.current.addQueue(queue2);
+        mlfq.current.addQueue(queue3);
+    }
 
     useEffect(() => {
     // const addJobs = () => {
@@ -339,22 +367,28 @@ function App() {
 				</div>
 				<div id="MLFQ-container">
 					<QueueGraph queueData={queueData}/>
-					<p>Controls</p>
-					<div id="controls">
-                        <button className="cols" onClick={startScheduler}>Start</button>
-						<div className="cols" id="col1">
-							<p>Time Allotment per Queue</p>
-							<p>Time per RR slice</p>
-						</div>
-						<div className="cols" id="col2">
-							<div><input type="number" className="control-inp" id="allotment" min="1" max="10" step="1" value="3" />ms</div>
-							<div><input type="number" className="control-inp" id="rr-slice" min="1" max="10" step="1" value="3" />ms</div>
-						</div>
-						<div className="cols" id="col3">
-							<div>Queues: <input type="number" className="control-inp" id="queues" min="1" max="10" step="1" value="3" />ms</div>
-							<div>Time for Priority Boost: <input type="number" className="control-inp" id="boost" min="1" max="10" step="1" value="3" />ms</div>
-						</div>
-					</div>
+					
+					<Paper id="controls" elevation={3} className="mt-3">
+                        <div className="flex">
+                            <Typography component="h2" variant="h5" className="w-full text-center">Configurations</Typography>
+                            <Button variant="contained" className="cols" onClick={startScheduler} disabled={jobs.length === 0}>Start</Button>
+                        </div>
+                        <div className="flex ">
+                            
+                            <div className="cols" id="col1">
+                                <p>Time Allotment per Queue</p>
+                                <p>Time per RR slice</p>
+                            </div>
+                            <div className="cols" id="col2">
+                                <div><input type="number" className="control-inp" id="allotment" min="1" max="10" step="1" disabled={jobs.length > 0} value={allotPerQueue} onChange={handleConfig}/>ms</div>
+                                <div><input type="number" className="control-inp" id="rr-slice" min="1" max="10" step="1" disabled={jobs.length > 0} value={timePerRrSlice} onChange={handleConfig}/>ms</div>
+                            </div>
+                            <div className="cols" id="col3">
+                                <div>Clock cycle length: <input type="number" className="control-inp" id="clock-cycle-length" min="1" max="10" step="1" disabled={true} value={clockCycleTime} onChange={handleConfig}/>ms</div>
+                                <div>Time for Priority Boost: <input type="number" className="control-inp" id="boost" min="1" max="10" step="1" disabled={jobs.length > 0} value={timeBetweenBoosts} onChange={handleConfig}/>ms</div>
+                            </div>
+                        </div>
+					</Paper>
 				</div>
 			</div>
 			<div id="bottom">
