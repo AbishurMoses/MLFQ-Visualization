@@ -54,7 +54,7 @@ class MLFQ {
 
     addJob(job) {
         if(this.queues.length > 0) {
-            let color = this.colors[this.jobs.length];
+            let color = this.colors[this.jobs.length-1];
             job.setup(this.jobs.length, color);
             this.queues[0].addJob(job);
             this.arriveCycles.set(job.id, this.cyclesElapsed);
