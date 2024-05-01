@@ -6,7 +6,7 @@ import StatsTable from './components/StatsTable'
 import TimeChart from './components/TimeChart'
 import { MLFQ } from './logic/MLFQ'
 import { Queue } from './logic/Queue'
-import { Job } from './logic/job'
+import { Job, States } from './logic/job'
 
 function App() {
     // let scheduler; // MLFQ
@@ -18,9 +18,11 @@ function App() {
     const [allotPerQueue, setAllotPerQueue] = useState(4); // Queue.queueTimeout // TODO hook this up be reactive with the UI
     const [timePerRrSlice, setTimePerRrSlice] = useState(null); // Queue.RRcycles // TODO hook this up be reactive with the UI
     const [timeBetweenBoosts, setTimeBetweenBoosts] = useState(110); // MLFQ.boostCycles // TODO hook this up be reactive with the UI
+    const [contextSwitchLen, setContextSwitchLen] = useState(0.1);
     
     const [queueData, setQueueData] = useState({currentTime: 0, queues: [[], [], []]})
     const [pidData, setPidData] = useState([]);
+    const [statsTableData, setStatsTableData] = useState({avgResponse: '_', avgTurnaround: '_', avgJobLength: '_', timeInContextSwitching: '_'});
     const [jobs, setJobs] = useState([new Job('j1', 54, '#78c0e0', 1), new Job('j2', 54, '#bd1e1e', 0), new Job('j3', 64, '#3a5a40', 2), new Job('j4', 44, '#ff7f51', 0), new Job('j5', 34, '#fcf6b1', 0)])
 
     // TODO delete this after we have real data for the pie chart
@@ -41,7 +43,8 @@ function App() {
     // const jobs = [j1, j2];
    // run the MLFQ 
    const startScheduler = () => {
-        // TODO remove this eventually, just temporarily populating jobs
+        MLFQ.avgResponseTime = 0;
+        MLFQ.avgTurnaroundTime = 0;
 
         mlfq.start();
         clearTimeout(starter) //TODO delete this once you're done with "starter"
@@ -80,10 +83,32 @@ function App() {
         }
         setPidData(data);
 
-        // update statsTableData // TODO maybe move this to once the scheduler's done
+        if (mlfq.state === States.DONE) {
+            setSummaryData();
+            console.log('going to stop polling now')
+            if (checker) clearInterval(checker); // stop polling
+        }
+        
 
-        // update pieChartData // TODO maybe move this to once the scheduler's done
+        
         console.log('done with pollANdUpdateState()')
+   }
+
+   // TODO move some of these out to a service and pass them updater funcs they need?
+   const setSummaryData = () => {
+        // update statsTableData
+        let totalJobLen = mlfq.jobs.reduce((total, job) => total + job.length, 0);
+        let avgJobLength = totalJobLen / mlfq.jobs.length;
+        const contextSwitchCount = mlfq.queues.reduce((total, queue) => total + queue.jobBlocks.length, 0);
+        
+        setStatsTableData({
+            avgResponse: mlfq.avgResponseTime * clockCycleTime,
+            avgTurnaround: mlfq.avgTurnaroundTime * clockCycleTime,
+            avgJobLength,
+            timeInContextSwitching: contextSwitchCount * contextSwitchLen,
+        })
+        console.log('set stats table data')
+        // update pieChartData
    }
 
    // setup scheduler and queues
@@ -169,7 +194,7 @@ function App() {
 			<div id="bottom">
 				<div id="table-container">
                     <PidTable pidData={pidData}></PidTable>
-                    <StatsTable></StatsTable>
+                    <StatsTable statsTableData={statsTableData}></StatsTable>
                     <TimeChart pieChartData={tempPieChartData}></TimeChart>
 				</div>
 			</div>
