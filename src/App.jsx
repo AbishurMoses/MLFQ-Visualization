@@ -11,18 +11,17 @@ import PidTable from './components/PidTable'
 import QueueGraph from './components/QueueGraph'
 import StatsTable from './components/StatsTable'
 import TimeChart from './components/TimeChart'
-import { MLFQ } from './logic/MLFQ'
-import { Queue } from './logic/Queue'
 import { Job, States } from './logic/job'
 import { Paper, Typography } from '@mui/material';
 import jobColors from './services/colors';
+import { setSummaryData, setupMlfq, startScheduler, updatePidData, updatePieChartData, updateQueueData } from './services/scheduler';
 
 /*	
 	Names cannot be the same
 */
 function App() {
 	const mlfq = useRef(null);
-	let checker; // setTimeout that polls the mlfq
+	let  checker = useRef(null); // setTimeout that polls the mlfq
 	const [clockCycleTime, setClockCycleTime] = useState(1); // MLFQ.cycleTime
 	const [allotPerQueue, setAllotPerQueue] = useState(4); // Queue.queueTimeout
 	const [timePerRrSlice, setTimePerRrSlice] = useState(3); // Queue.RRcycles
@@ -42,8 +41,6 @@ function App() {
 	const [PD, setPD] = useState([])
 	const [jobs, setJobs] = useState([])
 	const [seedIds, setSeedIds] = useState([])
-    const [colors, setColors] = useState(['#af4d98'])
-    const [chartColors, setChartColors] = useState(jobColors)
 	var jobId = useRef(0)
 
 	const getRandomInt = (max) => {
@@ -200,113 +197,34 @@ function App() {
 		console.log("here: ", jobs)
 	}
 
-	// setup scheduler and queues
+	// setup scheduler and queues on mount
 	useEffect(() => {
-		setupMlfq();
+		setupMlfq(mlfq, clockCycleTime, timeBetweenBoosts, timePerRrSlice, allotPerQueue);
 
 		return () => {
-			if (checker) clearInterval(checker); // clean up state polling timeout on unmount
+			if (checker.current) clearInterval(checker); // clean up state polling timeout on unmount
 		}
 	}, [])
 
-	const setupMlfq = () => {
-		mlfq.current = new MLFQ(clockCycleTime, timeBetweenBoosts);
-		console.log('set mlfq')
-		console.dir(mlfq)
-		const queue1 = new Queue(timePerRrSlice, allotPerQueue);
-		const queue2 = new Queue(timePerRrSlice, allotPerQueue * 2); // allow jobs to run longer in lower-priority queues
-		const queue3 = new Queue(timePerRrSlice, allotPerQueue * 3);
-
-		mlfq.current.addQueue(queue1);
-		mlfq.current.addQueue(queue2);
-		mlfq.current.addQueue(queue3);
-	}
-
-	// useEffect(() => {
-	// 	for (let job of jobs) {
-	// 		mlfq.current.addJob(job);
-	// 	}
-	// }, [jobs])
-
 	// run the MLFQ 
-	const startScheduler = () => {
-		MLFQ.avgResponseTime = 0;
-		MLFQ.avgTurnaroundTime = 0;
-
-		for (let job of jobs) {
-			mlfq.current.addJob(job)
-		}
-
-		console.log('about to call start()')
-		console.dir(mlfq)
-		mlfq.current.start();
-
-		// setTimeOut poll for scheduler changes and update state accordingly
-		checker = setInterval(pollAndUpdateState, clockCycleTime * 10);
-	}
+	const runScheduler = () => {
+        startScheduler(mlfq, jobs, checker, pollAndUpdateState, clockCycleTime);
+    }
 
 	// polls the scheduler's state and updates app state accordingly to update the UI
 	const pollAndUpdateState = () => {
 		console.log('starting pollANdUpdateState()');
 
-		// update queueData
-		const currentTime = mlfq.current.cyclesElapsed * clockCycleTime;
-		const queues = []
-		for (let queue of mlfq.current.queues) {
-			queues.push(queue.jobBlocks)
-		}
-		setQueueData({ currentTime, queues });
-
-
-		// update pidData
-		// {pid: 2, name: "Arc", status: "running", queue: 2, allotment: 1.2},
-		let data = [];
-		for (let [idx, queue] of mlfq.current.queues.entries()) {
-			for (let job of queue.jobs) {
-				let allotment = (queue.queueTimeout * clockCycleTime) - (queue.jobRuntime.get(job.id) * clockCycleTime) // total time the job's run  - total allowed time
-				data.push({
-					pid: job.id,
-					name: job.name,
-					status: job.state,
-					queue: idx + 1,
-					allotment
-				})
-			}
-		}
-		setPidData(data);
-
-		// update pieChartData
-		const jobData = {};
-		for (let job of mlfq.current.jobs) {
-			jobData[job.name] = job.length;
-		}
-		const contextSwitchCount = mlfq.current.queues.reduce((total, queue) => total + queue.jobBlocks.length, 0);
-		setPieChartData({
-			contextSwitches: contextSwitchCount * contextSwitchLen,
-			jobs: jobData,
-		})
+        updateQueueData(mlfq, setQueueData, clockCycleTime);
+		updatePidData(mlfq, setPidData, clockCycleTime);
+        updatePieChartData(mlfq, setPieChartData, contextSwitchLen);
 
 		if (mlfq.current.state === States.DONE) {
-			setSummaryData();
+			setSummaryData(mlfq, setStatsTableData, clockCycleTime, contextSwitchLen);
 			console.log('going to stop polling now')
-			if (checker) clearInterval(checker); // stop polling
+			if (checker.current) clearInterval(checker.current); // stop polling
 		}
 		console.log('done with pollANdUpdateState()')
-	}
-
-	// TODO move some of these out to a service and pass them updater funcs they need?
-	const setSummaryData = () => {
-		// update statsTableData
-		let totalJobLen = mlfq.current.jobs.reduce((total, job) => total + job.length, 0);
-		let avgJobLength = totalJobLen / mlfq.current.jobs.length;
-		const contextSwitchCount = mlfq.current.queues.reduce((total, queue) => total + queue.jobBlocks.length, 0);
-
-		setStatsTableData({
-			avgResponse: mlfq.current.avgResponseTime * clockCycleTime,
-			avgTurnaround: mlfq.current.avgTurnaroundTime * clockCycleTime,
-			avgJobLength,
-			timeInContextSwitching: contextSwitchCount * contextSwitchLen,
-		})
 	}
 
 	return (
@@ -357,7 +275,7 @@ function App() {
 					<Paper id="controls" elevation={3} className="mt-3">
 						<div className="flex">
 							<Typography component="h2" variant="h5" className="w-full text-center">Configurations</Typography>
-							<Button variant="contained" className="cols" onClick={startScheduler} disabled={jobs.length === 0}>Start</Button>
+							<Button variant="contained" className="cols" onClick={runScheduler} disabled={jobs.length === 0}>Start</Button>
 						</div>
 						<div className="flex ">
 
@@ -382,7 +300,7 @@ function App() {
 				<div id="table-container">
                     <PidTable pidData={pidData}></PidTable>
                     <StatsTable statsTableData={statsTableData}></StatsTable>
-                    <TimeChart pieChartData={pieChartData} chartColors={chartColors}></TimeChart>
+                    <TimeChart pieChartData={pieChartData} chartColors={jobColors}></TimeChart>
 				</div>
 			</div>
 		</div >
