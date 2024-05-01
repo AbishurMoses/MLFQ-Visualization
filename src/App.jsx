@@ -1,7 +1,7 @@
 import './App.css'
 import './styles/Job.css'
-import React from 'react'
-import { useState } from 'react'
+import React, { useEffect } from 'react'
+import { useState, useRef } from 'react'
 import Job from './components/Job'
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -15,34 +15,24 @@ import TimeChart from './components/TimeChart'
 
 /*	
 	Names cannot be the same
-	Seeded jobs should be deleteable
-	
-	Job IDs
-		- Will need to find a way to create both seeded and custom job Ids
-		in such a way that they aren't the same
-		- Use useRef to persiste state
 */
 function App() {
 	const [massJobs, setMassJobs] = useState(false)
 	const [seedBtn, setSeedBtn] = useState(false)
 	const [jobName, setJobName] = useState("")
 	const [jobLength, setJobLength] = useState(0)
-	// Pre-determined Jobs 
+	// For generating pre-determined Jobs 
 	const [PD, setPD] = useState([])
-	// Jobs created by the user
-	const [customJobs, setCustomJobs] = useState([])
-	// const [jobId, setJobId] = useLocalStorage('jobId', [0])
-	var jobId = 0
+	const [jobs, setJobs] = useState([])
+	const [seedIds, setSeedIds] = useState([])
+	var jobId = useRef(0)
 
 	const getRandomInt = (max) => {
 		return Math.floor(Math.random() * max);
 	}
 
 	const increment = () => {
-		setJobId(prev => {
-			prev = prev + 1
-			return prev
-		})
+		jobId.current += 1
 	}
 
 	// Custom Job
@@ -50,17 +40,31 @@ function App() {
 		if (jobName == "") {
 			alert("Add a name dommy")
 		} else {
-			setCustomJobs(prev => {
+			setJobs(prev => {
 				prev.push({
-					id: jobId,
+					id: jobId.current,
 					name: jobName,
 					length: jobLength,
 				})
 				return prev
 			})
-			// increment()
-			jobId++
-			console.log(customJobs)
+			increment()
+		}
+		console.log(jobs)
+	}
+
+	useEffect(() => {
+		console.log("seedIds has been changed", seedIds)
+	}, [seedIds])
+
+	useEffect(() => {
+		console.log("PD has been changed", PD)
+	}, [PD])
+
+	const seedJobIds = (num) => {
+		for (var i = num - 1; i >= 0; i--) {
+			const currentJobId = (jobId.current - 1) - i;
+			setSeedIds(prev => [...prev, currentJobId]);
 		}
 	}
 
@@ -70,16 +74,25 @@ function App() {
 		while (i < numOfJobs) {
 			setPD(prev => {
 				prev.push({
-					id: jobId,
-					name: "Job " + (jobId + 1).toString(),
+					id: jobId.current,
+					name: "Job " + (jobId.current + 1).toString(),
 					length: getRandomInt(25),
 				})
 				return prev
 			})
-			// increment()
-			jobId++
+			setJobs(prev => {
+				prev.push({
+					id: jobId.current,
+					name: "Job " + (jobId.current + 1).toString(),
+					length: getRandomInt(25),
+				})
+				return prev
+			})
+			increment()
 			i++
 		}
+
+		seedJobIds(3)
 	}
 
 	const resetInput = () => {
@@ -93,8 +106,7 @@ function App() {
 
 	const seedJobs = () => {
 		if (seedBtn == false) {
-			addJobs(4)
-			console.log(PD)
+			addJobs(3)
 
 			setSeedBtn(true)
 			fnMassJobs(true)
@@ -103,9 +115,19 @@ function App() {
 		}
 	}
 
-	const clearJobs = async () => {
-		setPD([])
+	const clearMainJobs = () => {
+		setJobs(prev => {
+			prev = jobs.filter(item => !seedIds.includes(item.id))
+			return prev
+		})
+		setSeedIds([])
+		console.log(jobs)
+	}
 
+	const clearJobs = async () => {
+		clearMainJobs()
+
+		setPD([])
 		setSeedBtn(false)
 		fnMassJobs(false)
 	}
@@ -124,6 +146,18 @@ function App() {
 			prev = PD.filter(item => item.id !== data)
 			return prev
 		})
+
+		setSeedIds(prev => {
+			prev = seedIds.filter(item => item !== data)
+			return prev
+		})
+
+		setJobs(prev => {
+			prev = jobs.filter(item => item.id !== data)
+			return prev
+		})
+		console.log("PD: ", PD)
+		console.log("here: ", jobs)
 	}
 
 	// TODO delete this after we have real data for the pie chart
@@ -159,7 +193,7 @@ function App() {
 									noValidate
 									autoComplete="off"
 								>
-									<TextField id="job-name" value={jobName} onChange={handleJob} label="Name" variant="outlined" />
+									<TextField id="job-name" value={jobName} onChange={handleJob} label="Name" variant="filled" sx={{ input: {color: 'white' }}}/>
 									<div className="input-container">
 										<p>Length</p>
 										<Slider name="job-length" className="sliders" value={jobLength} onChange={handleJob} defaultValue={25} valueLabelDisplay="auto" max={50} />

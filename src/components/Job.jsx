@@ -1,26 +1,22 @@
-// import { useState, useEffect } from 'react'
 import Button from '@mui/material/Button';
 
 const Job = (props) => {
-    const { value, onData} = props
-    // const [deletionId, setDeletionId] = useState(0)
+    const { onData } = props
 
     const jobIdBtn = () => {
         const value = props.value.id
-        console.log(value)
-        // setDeletionId(value)
         onData(value)
     }
 
-    // useEffect(() => {
-    //     console.log("DeletionId as been update to ", deletionId)
-    // }, [deletionId])
-
     return (
         <div className="job">
-            <Button className="delete-btns" variant="contained" onClick={jobIdBtn}>X</Button>
-            <p>Name: {props.value.name}</p>
-            <p>Length: {props.value.length}</p>
+            <div className="btn-container">
+                <Button className="delete-btns" variant="contained" onClick={jobIdBtn}>X</Button>
+            </div>
+            <div className="job-content">
+                <p>Name: {props.value.name}</p>
+                <p>Length: {props.value.length}</p>
+            </div>
         </div>
     )
 }
