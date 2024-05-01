@@ -16,6 +16,7 @@ const Job = (props) => {
             <div className="job-content">
                 <p>Name: {props.value.name}</p>
                 <p>Length: {props.value.length}</p>
+                <p>Inter: {props.value.interactivity}</p>
             </div>
         </div>
     )

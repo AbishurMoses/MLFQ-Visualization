@@ -51,7 +51,7 @@ p {
 }
 
 #table-container {
-  background-color: #2a2aa2a;
+  background-color: "#2a2aa2a";
   height: 100%;
   width: 100%;
   display: flex;
