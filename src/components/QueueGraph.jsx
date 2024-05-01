@@ -132,11 +132,12 @@ const QueueGraph = (props) => {
                         </Paper>
                     )
                 })}
+                {/* x-axis */}
                 <div className="absolute flex justify-between -bottom-4 font-semibold text-white" style={{ width: `calc(100% - ${queueContainerPL}px)` }}>
                     <p>{0}</p>
-                    <p>{(queueData.currentTime / 3).toFixed(1)}</p>
-                    <p>{(queueData.currentTime * 2 / 3).toFixed(1)}</p>
-                    <p>{(queueData.currentTime).toFixed(1)}</p>
+                    <p>{(queueData.currentTime / 3).toFixed(1)} ms</p>
+                    <p>{(queueData.currentTime * 2 / 3).toFixed(1)} ms</p>
+                    <p>{(queueData.currentTime).toFixed(1)} ms</p>
                 </div>
             </div>
         </Paper>
