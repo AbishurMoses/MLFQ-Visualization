@@ -1,5 +1,12 @@
-import { useEffect, useState } from 'react'
 import './App.css'
+import './styles/Job.css'
+import React, { useState, useRef, useEffect } from 'react'
+import { Job as JobComponent } from './components/Job'
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Slider from '@mui/material/Slider';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import PidTable from './components/PidTable'
 import QueueGraph from './components/QueueGraph'
 import StatsTable from './components/StatsTable'
@@ -8,6 +15,9 @@ import { MLFQ } from './logic/MLFQ'
 import { Queue } from './logic/Queue'
 import { Job, States } from './logic/job'
 
+/*	
+	Names cannot be the same
+*/
 function App() {
     // let scheduler; // MLFQ
     let mlfq; // MLFQ
@@ -24,7 +34,149 @@ function App() {
     const [pidData, setPidData] = useState([]);
     const [statsTableData, setStatsTableData] = useState({avgResponse: '_', avgTurnaround: '_', avgJobLength: '_', timeInContextSwitching: '_'});
     const [pieChartData, setPieChartData] = useState({contextSwitches: 0, jobs: {}})
-    const [jobs, setJobs] = useState([new Job('j1', 54, '#78c0e0', 1), new Job('j2', 54, '#bd1e1e', 0), new Job('j3', 64, '#3a5a40', 2), new Job('j4', 44, '#ff7f51', 0), new Job('j5', 34, '#fcf6b1', 0)])
+    // const [jobs, setJobs] = useState([new Job('j1', 54, '#78c0e0', 1), new Job('j2', 54, '#bd1e1e', 0), new Job('j3', 64, '#3a5a40', 2), new Job('j4', 44, '#ff7f51', 0), new Job('j5', 34, '#fcf6b1', 0)])
+	const [massJobs, setMassJobs] = useState(false)
+	const [seedBtn, setSeedBtn] = useState(false)
+	const [jobName, setJobName] = useState("")
+	const [jobLength, setJobLength] = useState(0)
+	// For generating pre-determined Jobs 
+	const [PD, setPD] = useState([])
+	const [jobs, setJobs] = useState([])
+	const [seedIds, setSeedIds] = useState([])
+	var jobId = useRef(0)
+
+	const getRandomInt = (max) => {
+		return Math.floor(Math.random() * max);
+	}
+
+	const increment = () => {
+		jobId.current += 1
+	}
+
+	// Custom Job
+	const addJob = () => {
+		if (jobName == "") {
+			alert("Add a name dommy")
+		} else {
+			setJobs(prev => {
+				prev.push({
+					id: jobId.current,
+					name: jobName,
+					length: jobLength,
+				})
+				return prev
+			})
+			increment()
+		}
+		console.log(jobs)
+	}
+
+	useEffect(() => {
+		console.log("seedIds has been changed", seedIds)
+	}, [seedIds])
+
+	useEffect(() => {
+		console.log("PD has been changed", PD)
+	}, [PD])
+
+	const seedJobIds = (num) => {
+		for (var i = num - 1; i >= 0; i--) {
+			const currentJobId = (jobId.current - 1) - i;
+			setSeedIds(prev => [...prev, currentJobId]);
+		}
+	}
+
+	// Seeded jobs
+	const addJobs = (numOfJobs) => {
+		var i = 0;
+		while (i < numOfJobs) {
+			setPD(prev => {
+				prev.push({
+					id: jobId.current,
+					name: "Job " + (jobId.current + 1).toString(),
+					length: getRandomInt(25),
+				})
+				return prev
+			})
+			setJobs(prev => {
+				prev.push({
+					id: jobId.current,
+					name: "Job " + (jobId.current + 1).toString(),
+					length: getRandomInt(25),
+				})
+				return prev
+			})
+			increment()
+			i++
+		}
+
+		seedJobIds(3)
+	}
+
+	const resetInput = () => {
+		setJobName("")
+		setJobLength(0)
+	}
+
+	const fnMassJobs = (bool) => {
+		setMassJobs(bool)
+	}
+
+	const seedJobs = () => {
+		if (seedBtn == false) {
+			addJobs(3)
+
+			setSeedBtn(true)
+			fnMassJobs(true)
+		} else {
+			alert("Max jobs seeded")
+		}
+	}
+
+	const clearMainJobs = () => {
+		setJobs(prev => {
+			prev = jobs.filter(item => !seedIds.includes(item.id))
+			return prev
+		})
+		setSeedIds([])
+		console.log(jobs)
+	}
+
+	const clearJobs = async () => {
+		clearMainJobs()
+
+		setPD([])
+		setSeedBtn(false)
+		fnMassJobs(false)
+	}
+
+	const handleJob = (event) => {
+		if (event.target.id == "job-name") {
+			setJobName(event.target.value)
+		}
+		if (event.target.name == "job-length") {
+			setJobLength(event.target.value)
+		}
+	}
+
+	const jobDeletion = (data) => {
+		setPD(prev => {
+			prev = PD.filter(item => item.id !== data)
+			return prev
+		})
+
+		setSeedIds(prev => {
+			prev = seedIds.filter(item => item !== data)
+			return prev
+		})
+
+		setJobs(prev => {
+			prev = jobs.filter(item => item.id !== data)
+			return prev
+		})
+		console.log("PD: ", PD)
+		console.log("here: ", jobs)
+	}
 
     // TODO delete this after we have real data for the pie chart
     const tempPieChartData = { 
@@ -170,15 +322,34 @@ function App() {
 					<div id="workload-cont">
 						<div id="workload-custom-job-cont">
 							<div id="workload">
-								<h3>MLFQ</h3>
+								{massJobs && (
+									PD.map((obj, index) => {
+										return <JobComponent key={index} value={obj} onData={jobDeletion} />
+									})
+								)}
 							</div>
 							<div id="custom-job">
-								<h3>Custom Job</h3>
+								<Box
+									component="form"
+									id="job-input"
+									noValidate
+									autoComplete="off"
+								>
+									<TextField id="job-name" value={jobName} onChange={handleJob} label="Name" variant="filled" sx={{ input: {color: 'white' }}}/>
+									<div className="input-container">
+										<p>Length</p>
+										<Slider name="job-length" className="sliders" value={jobLength} onChange={handleJob} defaultValue={25} valueLabelDisplay="auto" max={50} />
+									</div>
+								</Box>
+								<Stack id="job-btn-container">
+									<Button className="custom-btns" variant="contained" onClick={addJob}>Add</Button>
+									<Button className="custom-btns" variant="contained" onClick={resetInput}>Reset</Button>
+								</Stack>
 							</div>
 						</div>
 						<div id="job-buttons">
-							<div className="btns" id="seed-btn">Seed Jobs</div>
-							<div className="btns" id="clear-btn">Clear</div>
+							<Button className="noncustom-btns" variant="contained" style={{ cursor: seedBtn ? "not-allowed" : "default" }} onClick={seedJobs}>Seed</Button>
+							<Button className="noncustom-btns" variant="contained" onClick={clearJobs}>Clear</Button>
 						</div>
 					</div>
 				</div>
@@ -208,7 +379,7 @@ function App() {
                     <TimeChart pieChartData={pieChartData}></TimeChart>
 				</div>
 			</div>
-		</div>
+		</div >
 	)
 }
 

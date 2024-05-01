@@ -21,6 +21,7 @@ class Queue {
     static currentJobIndex;      // TODO: MAKE THIS AN ACTUAL JOB the index of the current job
     static queueTimeout;    // clock cycle limit for a job to run in the queue
     static state;           // is the queue ready to run?
+    static cycleTime;     // length of each clock cycle in ms.
 
     /*
         RRcycles (int) number of cycles between Round Robin job switches
@@ -39,8 +40,9 @@ class Queue {
     /*
         set the id of the queue
     */
-    setID(id) {
+    setup(id, cycleTime) {
         this.id = id;
+        this.cycleTime = cycleTime;
     }
 
     /*
@@ -122,7 +124,7 @@ class Queue {
         cyclesElapsed++;
 
         if(job.state == States.DONE || job.state == States.BLOCKED) {
-            this.jobBlocks.push(new JobBlock(job));
+            this.jobBlocks.push(new JobBlock(job, this.cycleTime));
         }
 
         // update the time this job has been running in the queue
@@ -182,7 +184,7 @@ class Queue {
     */
     stopJob(job, cyclesElapsed) {
         job.stop(cyclesElapsed);
-        this.jobBlocks.push(new JobBlock(job));
+        this.jobBlocks.push(new JobBlock(job, this.cycleTime));
     }
 
     /*

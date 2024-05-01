@@ -16,21 +16,21 @@ const QueueGraph = (props) => {
         queues: [
             [
                 // {start: , length: , job: , name: , color: ,},
-                {start: 0, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
-                {start: 5, length: 8, job: 2, name: "something", color: "#ffee4c",},
-                {start: 20, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
-                {start: 27, length: 12, job: 2, name: "something", color: "#ffee4c",},
+                { start: 0, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
+                { start: 5, length: 8, job: 2, name: "something", color: "#ffee4c", },
+                { start: 20, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
+                { start: 27, length: 12, job: 2, name: "something", color: "#ffee4c", },
             ],
             [
-                {start: 0, length: 6, job: 1, name: "quicksand", color: "#2a2a2a",},
-                {start: 20, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
-                {start: 27, length: 12, job: 2, name: "something", color: "#ffee4c",},
+                { start: 0, length: 6, job: 1, name: "quicksand", color: "#2a2a2a", },
+                { start: 20, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
+                { start: 27, length: 12, job: 2, name: "something", color: "#ffee4c", },
             ],
             [
-                {start: 6, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
-                {start: 14, length: 8, job: 2, name: "something", color: "#ffee4c",},
-                {start: 22, length: 5, job: 1, name: "quicksand", color: "#2a2a2a",},
-                {start: 30, length: 12, job: 2, name: "something", color: "#ffee4c",},
+                { start: 6, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
+                { start: 14, length: 8, job: 2, name: "something", color: "#ffee4c", },
+                { start: 22, length: 5, job: 1, name: "quicksand", color: "#2a2a2a", },
+                { start: 30, length: 12, job: 2, name: "something", color: "#ffee4c", },
             ],
         ]
     }
@@ -38,7 +38,7 @@ const QueueGraph = (props) => {
     const queueHeight = 32;
     const queueContainerPL = 16;
     const queueContainerPB = 16;
-    
+
     /*
         queueData format (tentative)
         {
@@ -73,28 +73,28 @@ const QueueGraph = (props) => {
 
     const buildTitle = (jobRun) => {
         return (<div>
-                <Typography variant="body1" component="h3" className="text-center">{jobRun.name}</Typography>
-                <Table size="small">
-                    <TableBody>
-                        <TableRow>
-                            <LightTableCell sx={{color: 'white'}}>ID</LightTableCell>
-                            <LightTableCell align="right">{jobRun.job}</LightTableCell>
-                        </TableRow>
-                        <TableRow>
-                            <LightTableCell>Start</LightTableCell>
-                            <LightTableCell align="right">{jobRun.start}</LightTableCell>
-                        </TableRow>
-                        <TableRow>
-                            <LightTableCell>Stop</LightTableCell>
-                            <LightTableCell align="right">{jobRun.start + jobRun.length}</LightTableCell>
-                        </TableRow>
-                        <TableRow>
-                            <LightTableCell>Length</LightTableCell>
-                            <LightTableCell align="right">{jobRun.length}</LightTableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </div>);
+            <Typography variant="body1" component="h3" className="text-center">{jobRun.name}</Typography>
+            <Table size="small">
+                <TableBody>
+                    <TableRow>
+                        <LightTableCell sx={{ color: 'white' }}>ID</LightTableCell>
+                        <LightTableCell align="right">{jobRun.job}</LightTableCell>
+                    </TableRow>
+                    <TableRow>
+                        <LightTableCell>Start</LightTableCell>
+                        <LightTableCell align="right">{jobRun.start}</LightTableCell>
+                    </TableRow>
+                    <TableRow>
+                        <LightTableCell>Stop</LightTableCell>
+                        <LightTableCell align="right">{jobRun.start + jobRun.length}</LightTableCell>
+                    </TableRow>
+                    <TableRow>
+                        <LightTableCell>Length</LightTableCell>
+                        <LightTableCell align="right">{jobRun.length}</LightTableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </div>);
     }
 
     return (
@@ -120,19 +120,19 @@ const QueueGraph = (props) => {
                                                 sx: {
                                                     bgcolor: '#2a2a2a',
                                                     '& .MuiTooltip-arrow': {
-                                                    color: '#2a2a2a',
+                                                        color: '#2a2a2a',
                                                     },
                                                 },
-                                                },
-                                            }}
-                                        >
-                                            <Card className="pl-5 inline-block absolute h-4/5" style={{width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}`}} key={`${jobRun.name}-${index}-${subIdx}`}></Card>
-                                        </Tooltip>)
-                            }) }
+                                            },
+                                        }}
+                                    >
+                                        <Card className="pl-5 inline-block absolute h-4/5" style={{ width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}` }} key={`${jobRun.name}-${index}-${subIdx}`}></Card>
+                                    </Tooltip>)
+                                })}
                         </Paper>
                     )
-                }) }
-                <div className="absolute flex justify-between -bottom-4 font-semibold text-white" style={{width: `calc(100% - ${queueContainerPL}px)`}}>
+                })}
+                <div className="absolute flex justify-between -bottom-4 font-semibold text-white" style={{ width: `calc(100% - ${queueContainerPL}px)` }}>
                     <p>{0}</p>
                     <p>{(queueData.currentTime / 3).toFixed(1)}</p>
                     <p>{(queueData.currentTime * 2 / 3).toFixed(1)}</p>
