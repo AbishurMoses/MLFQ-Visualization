@@ -15,6 +15,10 @@ class MLFQ {
     static boostCycles;     // (int) time between priority boosts
     static cyclesElapsed;   // (int) the elapsed clock cycle count
     static state;
+    static avgTurnaroundTime;  // map<int, int> maps the jobID to its turnaround time
+    static responseTime;    // map<jobID, cycle> maps the jobID to its arrival time for use in response time
+    static avgResponseTime; // (number) the average response time for all jobs once MLFQ finishes
+    static colors;          // array of colors for the jobs
     
     constructor(cycleTime, boostCycles) {
         this.queues = []; // queues with jobBlocks
@@ -23,6 +27,19 @@ class MLFQ {
         this.boostTime = boostCycles;
         this.cyclesElapsed = 0; 
         this.state = States.READY
+        this.avgTurnaroundTime = 0;
+        this.arriveCycles = new Map(null);
+        this.avgResponseTime = 0;
+        this.colors = [
+            '#af4d98', '#78c0e0', '#bd1e1e',
+            '#3a5a40', '#ff7f51', '#fcf6b1',
+            '#f7b32b', '#8447ff', '#7180ac',
+            '#ff8cc6', '#d34e24', '#a2ad91',
+            '#86cb92', '#694873', '#ffe3dc',
+            '#f72c25', '#331e36', '#cd5d67',
+            '#e9b872', '#c2efeb', '#d00000',
+            '#686963', '#d6d1b1', '#ffb2e6'
+          ]
     }
 
     // The clock is owned by the MLFQ, which decides which queue should run, 
@@ -33,19 +50,19 @@ class MLFQ {
     addQueue(queue) {
         queue.setID(this.queues.length);
         this.queues.push(queue);
-        
     }
 
     addJob(job) {
         if(this.queues.length > 0) {
-            job.setID(this.jobs.length);     // set the id of the job in the MLFQ
+            let color = this.colors[this.jobs.length];
+            job.setup(this.jobs.length, color);
             this.queues[0].addJob(job);
+            this.arriveCycles.set(job.id, this.cyclesElapsed);
         }
         else {
             console.log("You need some queues to add jobs to.");
         }
         this.jobs.push(job);
-
     }
 
     /*
@@ -56,9 +73,6 @@ class MLFQ {
         for(let i = 0; i < this.queues.length; i++) {
             if(this.queues[i].state == States.READY || this.queues[i].state == States.RUNNING) {
                 return this.queues[i];
-            }
-            else {
-                console.log("queue is in an invalid state.");
             }
         }
     }
@@ -148,6 +162,28 @@ class MLFQ {
         console.log("Stopping the MLFQ");
         clearInterval(this.intervalID);
         this.intervalID = null;
+        this.calculateStats();
+    }
+
+    calculateStats() {
+        let turnaroundTimes = 0;
+        let responseTimes = 0;
+        for(const queue of this.queues) {
+            for(const job of queue.jobs) {
+                let turnaroundTime = job.finishCycle - this.arriveCycles.get(job.id);
+                console.log(`Turnaround time for job ${job.id}: ${turnaroundTime}`);
+                turnaroundTimes += turnaroundTime;
+
+                let responseTime = job.beginCycle - this.arriveCycles.get(job.id);
+                console.log(`Response time for job ${job.id}: ${responseTime}`)
+                responseTimes += responseTime;
+            }
+        }
+        console.log(turnaroundTimes);
+        console.log(responseTimes)
+
+        this.avgResponseTime = responseTimes / this.jobs.length;
+        this.avgTurnaroundTime = turnaroundTimes / this.jobs.length;
     }
 
     priorityBoost() {

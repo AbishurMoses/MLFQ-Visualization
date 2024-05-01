@@ -22,29 +22,36 @@ class Job {
     static progress;    // cycles completed on job
     static startCycle;  // time job was last started
     static stopCycle;   // time job has been running since last started
+    /***** for calculating average response and turnaround time ****/
+    static beginCycle;  // cycle when the job began running
+    static finishCycle; // cycle when job finished
+    /******************/
     static interactivity;   // set the interactivity for the frequency and length of i/o
     static ioUnblockCycle; // track the amount of i/o remaining on the current i/o session
 
     // length: Job length measured in clock cycles
-    constructor(name, length, color, interactivity) {
+    constructor(name, length, interactivity) {
         this.name = name;
         this.length = length;
-        this.color = color;
         this.state = States.READY;
         this.interactivity = interactivity;
         this.progress = 0;
-        this.startCycle = 0;
-        this.stopCycle = 0;
+        this.startCycle = null;
+        this.stopCycle = null;
+        this.beginCycle = null;
+        this.finishCycle = null;
     }
 
-    // handle for MLFQ scheduler to set its ID for this job. 
-    setID(id) {
+    // handle for MLFQ scheduler to set its ID and color for this job. 
+    setup(id, color) {
         this.id = id;
+        this.color = color;
     }
 
     // run the job for one clock cycle
     // keep track of when the job started and stopped
     run(cyclesElapsed) {
+        // check if the job has been run yet
         if(this.state == States.READY) {    // if we are starting the job anew
             this.startCycle = cyclesElapsed; // set the startCycle to now.
             this.state = States.RUNNING;
@@ -95,6 +102,7 @@ class Job {
         if(this.progress >= this.length) {
             this.state = States.DONE;
             this.stopCycle = cyclesElapsed;
+            this.finishCycle = cyclesElapsed;
             console.log(`${cyclesElapsed}: job ${this.name} done!`);
         }
     }
@@ -106,6 +114,14 @@ class Job {
     */
     lastStartCycle() {
         return this.startCycle;
+    }
+
+    /*
+        set the begin cycle of the job
+        for the Queue to track response time
+    */
+    setBeginCycle(cycle) {
+        this.beginCycle = cycle;
     }
 
     // stop a running job
