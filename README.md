@@ -1,6 +1,9 @@
 
 # MLFQ Visualization
-Authors: Corbin Weiss, Abishur Moses-Pakkianathan, and Allen Gustrowsky
+## Info
+- Authors: Corbin Weiss, Abishur Moses-Pakkianathan, and Allen Gustrowsky
+- Github repo: https://github.com/AbishurMoses/MLFQ-Visualization 
+- Live site: https://mlfq-visualizer.netlify.app/ 
 
 ## Description
 This is a visualization/simulator of a scheduler that uses the MLFQ algorithm. The goal is to aid students in understanding the MLFQ algorithm. 
