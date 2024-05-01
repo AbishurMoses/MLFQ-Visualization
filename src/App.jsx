@@ -72,14 +72,6 @@ function App() {
 		console.log(jobs)
 	}
 
-	useEffect(() => {
-		console.log("seedIds has been changed", seedIds)
-	}, [seedIds])
-
-	useEffect(() => {
-		console.log("PD has been changed", PD)
-	}, [PD])
-
 	const seedJobIds = (num) => {
 		for (var i = num - 1; i >= 0; i--) {
 			const currentJobId = (jobId.current - 1) - i;
