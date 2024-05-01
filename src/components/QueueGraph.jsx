@@ -126,7 +126,7 @@ const QueueGraph = (props) => {
                                             },
                                         }}
                                     >
-                                        <Card className="pl-5 inline-block absolute h-4/5" style={{ width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}` }} key={`${jobRun.name}-${index}-${subIdx}`}></Card>
+                                        <Card className="inline-block absolute h-4/5" style={{ width: `${width}%`, left: `${left}%`, backgroundColor: `${jobRun.color}` }} key={`${jobRun.name}-${index}-${subIdx}`}></Card>
                                     </Tooltip>)
                                 })}
                         </Paper>
