@@ -30,10 +30,9 @@ class Job {
     static ioUnblockCycle; // track the amount of i/o remaining on the current i/o session
 
     // length: Job length measured in clock cycles
-    constructor(name, length, color, interactivity) {
+    constructor(name, length, interactivity) {
         this.name = name;
         this.length = length;
-        this.color = color;
         this.state = States.READY;
         this.interactivity = interactivity;
         this.progress = 0;
