@@ -40,6 +40,7 @@ class MLFQ {
             '#e9b872', '#c2efeb', '#d00000',
             '#686963', '#d6d1b1', '#ffb2e6'
           ]
+        this.idCounter = 0;
     }
 
     // The clock is owned by the MLFQ, which decides which queue should run, 
@@ -54,8 +55,11 @@ class MLFQ {
 
     addJob(job) {
         if(this.queues.length > 0) {
-            let color = this.colors[this.jobs.length];
-            job.setup(this.jobs.length, color);
+            const jobId = this.idCounter++;
+            let color = this.colors[jobId];
+            // job.setup(this.jobs.length, color);
+            job.setup(jobId, color);
+            // job.setup(this.jobs.length);
             this.queues[0].addJob(job);
             this.arriveCycles.set(job.id, this.cyclesElapsed);
         }

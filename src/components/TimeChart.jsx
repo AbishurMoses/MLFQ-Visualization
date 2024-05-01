@@ -3,18 +3,19 @@ import { PieChart } from "@mui/x-charts";
 import { useEffect, useState } from "react";
 
 const TimeChart = (props) => {
-    const { pieChartData } = props;
+    const { pieChartData, chartColors } = props;
     const [data, setData] = useState([]);
-    const chartColors = [
-        '#af4d98', '#78c0e0', '#bd1e1e',
-        '#3a5a40', '#ff7f51', '#fcf6b1',
-        '#f7b32b', '#8447ff', '#7180ac',
-        '#ff8cc6', '#d34e24', '#a2ad91',
-        '#86cb92', '#694873', '#ffe3dc',
-        '#f72c25', '#331e36', '#cd5d67',
-        '#e9b872', '#c2efeb', '#d00000',
-        '#686963', '#d6d1b1', '#ffb2e6'
-      ];
+    
+    // const chartColors = [
+    //     '#af4d98', '#78c0e0', '#bd1e1e',
+    //     '#3a5a40', '#ff7f51', '#fcf6b1',
+    //     '#f7b32b', '#8447ff', '#7180ac',
+    //     '#ff8cc6', '#d34e24', '#a2ad91',
+    //     '#86cb92', '#694873', '#ffe3dc',
+    //     '#f72c25', '#331e36', '#cd5d67',
+    //     '#e9b872', '#c2efeb', '#d00000',
+    //     '#686963', '#d6d1b1', '#ffb2e6'
+    //   ];
     
     /*
         pieChartData format:
@@ -42,7 +43,8 @@ const TimeChart = (props) => {
         Object.keys(pieChartData.jobs).map(jobName => {
             tempData.push({value: pieChartData.jobs[jobName], label: jobName})
         })
-        
+        console.log('chart colors')
+        console.dir(chartColors)
         setData(prev => tempData);
     }, [pieChartData]);
 
