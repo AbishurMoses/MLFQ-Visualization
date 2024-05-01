@@ -12,13 +12,16 @@ class JobBlock {
     static start  = 0;  // (int) start time in clock cycles
     static length = 0;  // (int) length of block in clock cycles
 
+
     /*
         initialize off of a Job object along with its 
         start time and running time
+        job: the job to make a jobBlock for
+        cycleLength: the length of each clock cycle in ms
     */
-    constructor(job) {
+    constructor(job, cycleLength) {
         this.start = job.startCycle;
-        this.length = job.stopCycle - job.startCycle;
+        this.length = cycleLength * (job.stopCycle - job.startCycle);
         this.jobID = job.id;
         this.color = job.color;
         this.jobName = job.name;
