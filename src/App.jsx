@@ -20,6 +20,7 @@ function App() {
     const [timeBetweenBoosts, setTimeBetweenBoosts] = useState(110); // MLFQ.boostCycles // TODO hook this up be reactive with the UI
     
     const [queueData, setQueueData] = useState({currentTime: 0, queues: [[], [], []]})
+    const [pidData, setPidData] = useState([]);
     const [jobs, setJobs] = useState([new Job('j1', 54, '#78c0e0', 1), new Job('j2', 54, '#bd1e1e', 0), new Job('j3', 64, '#3a5a40', 2), new Job('j4', 44, '#ff7f51', 0), new Job('j5', 34, '#fcf6b1', 0)])
 
     // TODO delete this after we have real data for the pie chart
@@ -62,7 +63,22 @@ function App() {
         setQueueData({currentTime, queues});
 
 
-        // update tableQueueData
+        // update pidData
+        // {pid: 2, name: "Arc", status: "running", queue: 2, allotment: 1.2},
+        let data = [];
+        for (let [idx, queue] of mlfq.queues.entries()) {
+            for (let job of queue.jobs) {
+                let allotment = (queue.queueTimeout * clockCycleTime) - (queue.jobRuntime.get(job.id) * clockCycleTime) // total time the job's run  - total allowed time
+                data.push({
+                    pid: job.id,
+                    name: job.name,
+                    status: job.state,
+                    queue: idx+1,
+                    allotment
+                })
+            }
+        }
+        setPidData(data);
 
         // update statsTableData // TODO maybe move this to once the scheduler's done
 
@@ -152,7 +168,7 @@ function App() {
 			</div>
 			<div id="bottom">
 				<div id="table-container">
-                    <PidTable></PidTable>
+                    <PidTable pidData={pidData}></PidTable>
                     <StatsTable></StatsTable>
                     <TimeChart pieChartData={tempPieChartData}></TimeChart>
 				</div>
