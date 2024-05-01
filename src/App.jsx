@@ -106,6 +106,7 @@ function App() {
 	const resetInput = () => {
 		setJobName("")
 		setJobLength(1)
+		setJobInteractivity(0)
 	}
 
 	const fnMassJobs = (bool) => {
@@ -325,7 +326,7 @@ function App() {
 									noValidate
 									autoComplete="off"
 								>
-									<TextField id="job-name" value={jobName} onChange={handleJob} label="Name" variant="filled" sx={{ input: { color: 'white' } }} />
+									<TextField id="job-name" value={jobName} onChange={handleJob} label="Name" variant="filled" sx={{ input: { color: 'white' } }}/>
 									<div className="input-container">
 										<p>Length</p>
 										<Slider name="job-length" className="sliders" value={jobLength} onChange={handleJob} defaultValue={25} valueLabelDisplay="auto" min={1} max={25} />
@@ -362,13 +363,13 @@ function App() {
 								<p>Time per RR slice</p>
 							</div>
 							<div className="cols" id="col2">
-								<div><input type="number" className="control-inp text-black" id="allotment" min="1" max="10" step="1" disabled={jobs.length > 0} value={allotPerQueue} onChange={handleConfig} />ms</div>
-								<div><input type="number" className="control-inp text-black" id="rr-slice" min="1" max="10" step="1" disabled={jobs.length > 0} value={timePerRrSlice} onChange={handleConfig} />ms</div>
+								<div><input type="number" className="control-inp text-black" id="allotment" min="1" max="25" step="1" disabled={jobs.length > 0} value={allotPerQueue} onChange={handleConfig} />ms</div>
+								<div><input type="number" className="control-inp text-black" id="rr-slice" min="1" max="25" step="1" disabled={jobs.length > 0} value={timePerRrSlice} onChange={handleConfig} />ms</div>
 							</div>
 							<div className="cols" id="col3">
 								{/* <div>Clock cycle length: <input type="number" className="control-inp" id="clock-cycle-length" min="1" max="10" step="1" disabled={true} value={clockCycleTime} onChange={handleConfig}/>ms</div> */}
-								<div>Context Switch Length: <input type="number" className="control-inp text-black" id="context-switch-length" min="0.1" max="10" step="0.05" disabled={jobs.length > 0} value={contextSwitchLen} onChange={handleConfig} />ms</div>
-								<div>Time for Priority Boost: <input type="number" className="control-inp text-black" id="boost" min="1" max="10" step="1" disabled={jobs.length > 0} value={timeBetweenBoosts} onChange={handleConfig} />ms</div>
+								<div>Context Switch Length: <input type="number" className="control-inp text-black" id="context-switch-length" min="0.1" max="5" step="0.05" disabled={jobs.length > 0} value={contextSwitchLen} onChange={handleConfig} />ms</div>
+								<div>Time for Priority Boost: <input type="number" className="control-inp text-black" id="boost" min="1" max="200" step="1" disabled={jobs.length > 0} value={timeBetweenBoosts} onChange={handleConfig} />ms</div>
 							</div>
 						</div>
 					</Paper>
