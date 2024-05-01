@@ -31,7 +31,7 @@ class MLFQ {
         this.arriveCycles = new Map(null);
         this.avgResponseTime = 0;
         this.colors = [
-            '#af4d98', '#78c0e0', '#bd1e1e',
+            '#78c0e0', '#bd1e1e', // don't include first color from TimeChart.jsx in order to sync them
             '#3a5a40', '#ff7f51', '#fcf6b1',
             '#f7b32b', '#8447ff', '#7180ac',
             '#ff8cc6', '#d34e24', '#a2ad91',
