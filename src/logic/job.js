@@ -44,6 +44,7 @@ class Job {
 
     // handle for MLFQ scheduler to set its ID and color for this job. 
     setup(id, color) {
+    // setup(id) {  
         this.id = id;
         this.color = color;
     }

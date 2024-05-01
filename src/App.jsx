@@ -41,6 +41,17 @@ function App() {
 	const [PD, setPD] = useState([])
 	const [jobs, setJobs] = useState([])
 	const [seedIds, setSeedIds] = useState([])
+    const [colors, setColors] = useState(['#af4d98'])
+    const [chartColors, setChartColors] = useState([
+            '#af4d98', '#78c0e0', '#bd1e1e',
+            '#3a5a40', '#ff7f51', '#fcf6b1',
+            '#f7b32b', '#8447ff', '#7180ac',
+            '#ff8cc6', '#d34e24', '#a2ad91',
+            '#86cb92', '#694873', '#ffe3dc',
+            '#f72c25', '#331e36', '#cd5d67',
+            '#e9b872', '#c2efeb', '#d00000',
+            '#686963', '#d6d1b1', '#ffb2e6'
+        ])
 	var jobId = useRef(0)
 
 	const getRandomInt = (max) => {
@@ -377,9 +388,9 @@ function App() {
 			</div>
 			<div id="bottom">
 				<div id="table-container">
-					<PidTable pidData={pidData}></PidTable>
-					<StatsTable statsTableData={statsTableData}></StatsTable>
-					<TimeChart pieChartData={pieChartData}></TimeChart>
+                    <PidTable pidData={pidData}></PidTable>
+                    <StatsTable statsTableData={statsTableData}></StatsTable>
+                    <TimeChart pieChartData={pieChartData} chartColors={chartColors}></TimeChart>
 				</div>
 			</div>
 		</div >
