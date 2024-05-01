@@ -23,19 +23,19 @@ const StatsTable = (props) => {
                 <Table stickyHeader>
                     <TableRow>
                         <TableCell>Avg Response Time:</TableCell>
-                        <TableCell align="right">{statsTableData.avgResponse} ms</TableCell>
+                        <TableCell align="right">{statsTableData.avgResponse.toFixed(2)} ms</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>Avg Turnaround Time:</TableCell>
-                        <TableCell align="right">{statsTableData.avgTurnaround} ms</TableCell>
+                        <TableCell align="right">{statsTableData.avgTurnaround.toFixed(2)} ms</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>Avg Job Length:</TableCell>
-                        <TableCell align="right">{statsTableData.avgJobLength} ms</TableCell>
+                        <TableCell align="right">{statsTableData.avgJobLength.toFixed(2)} ms</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>Total Time in Context Switching:</TableCell>
-                        <TableCell align="right">{statsTableData.timeInContextSwitching} ms</TableCell>
+                        <TableCell align="right">{statsTableData.timeInContextSwitching.toFixed(2)} ms</TableCell>
                     </TableRow>
                 </Table>
             </TableContainer>
