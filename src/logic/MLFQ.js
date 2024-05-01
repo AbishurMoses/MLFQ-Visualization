@@ -197,6 +197,14 @@ class MLFQ {
             // after all jobs are removed from queues, their state should be reset to default of DONE
         }
     }
+
+    // assumes the job exists
+    removeJob(jobName) {
+        const job = this.jobs.filter(j => j.name === jobName)[0];
+        this.queues[0].removeJob(job);
+        this.arriveCycles.delete(job.id)
+        this.jobs = this.jobs.filter(job => job.name !== jobName)
+    }
 }
 
 export {MLFQ};

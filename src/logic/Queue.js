@@ -210,6 +210,12 @@ class Queue {
         console.log(`Added job ${job.name}`);
     }
 
+    removeJob(job) {
+        this.jobs = this.jobs.filter(j => j.id !== job.id);
+        this.jobRuntime.delete(job.id);
+        console.log(`Deleted job ${job.name}`);
+    }
+
     /*
         Update the state of the queue based on the state of the jobs.
         Provides a handle for the MLFQ to update the status of a blocked queue.

@@ -149,7 +149,7 @@ function App() {
 		}
 	}
 
-	const jobDeletion = (data) => {
+	const jobDeletion = (data, jobName) => {
 		setPD(prev => {
 			prev = PD.filter(item => item.id !== data)
 			return prev
@@ -164,6 +164,7 @@ function App() {
 			prev = jobs.filter(item => item.id !== data)
 			return prev
 		})
+        mlfq.current.removeJob(jobName);
 		console.log("PD: ", PD)
 		console.log("here: ", jobs)
 	}

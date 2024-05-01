@@ -5,7 +5,7 @@ const Job = (props) => {
 
     const jobIdBtn = () => {
         const value = props.value.id
-        onData(value)
+        onData(value, props.value.name)
     }
 
     return (
