@@ -5,7 +5,7 @@ const Job = (props) => {
 
     const jobIdBtn = () => {
         const value = props.value.id
-        onData(value)
+        onData(value, props.value.name)
     }
 
     return (
@@ -21,4 +21,4 @@ const Job = (props) => {
     )
 }
 
-export default Job
+export { Job }

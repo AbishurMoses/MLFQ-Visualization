@@ -21,7 +21,7 @@ class MLFQ {
     static colors;          // array of colors for the jobs
     
     constructor(cycleTime, boostCycles) {
-        this.queues = [];
+        this.queues = []; // queues with jobBlocks
         this.jobs = [];
         this.cycleTime = cycleTime;
         this.boostTime = boostCycles;
@@ -31,7 +31,7 @@ class MLFQ {
         this.arriveCycles = new Map(null);
         this.avgResponseTime = 0;
         this.colors = [
-            '#af4d98', '#78c0e0', '#bd1e1e',
+            '#78c0e0', '#bd1e1e', // don't include first color from TimeChart.jsx in order to sync them
             '#3a5a40', '#ff7f51', '#fcf6b1',
             '#f7b32b', '#8447ff', '#7180ac',
             '#ff8cc6', '#d34e24', '#a2ad91',
@@ -196,6 +196,14 @@ class MLFQ {
             this.queues[i].state = States.DONE; 
             // after all jobs are removed from queues, their state should be reset to default of DONE
         }
+    }
+
+    // assumes the job exists
+    removeJob(jobName) {
+        const job = this.jobs.filter(j => j.name === jobName)[0];
+        this.queues[0].removeJob(job);
+        this.arriveCycles.delete(job.id)
+        this.jobs = this.jobs.filter(job => job.name !== jobName)
     }
 }
 

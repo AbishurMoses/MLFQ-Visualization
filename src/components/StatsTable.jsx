@@ -4,12 +4,14 @@ const StatsTable = (props) => {
     const { statsTableData } = props
 
     // "data" is the same structure as "statsQueueData."  It's just sample data.
-    const data = {
-        avgResponse: 0.014,
-        avgTurnaround: 0.8,
-        avgJobLength: 1.2,
-        timeInContextSwitching: 4.5,
-    }
+    /* statsTableData structure:
+        {
+            avgResponse: 0.014,
+            avgTurnaround: 0.8,
+            avgJobLength: 1.2,
+            timeInContextSwitching: 4.5,
+        }
+    */
 
     return (
         // Scheduler Run Stats
@@ -21,19 +23,19 @@ const StatsTable = (props) => {
                 <Table stickyHeader>
                     <TableRow>
                         <TableCell>Avg Response Time:</TableCell>
-                        <TableCell align="right">{data.avgResponse}</TableCell>
+                        <TableCell align="right">{statsTableData.avgResponse.toFixed(2)} ms</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>Avg Turnaround Time:</TableCell>
-                        <TableCell align="right">{data.avgTurnaround}</TableCell>
+                        <TableCell align="right">{statsTableData.avgTurnaround.toFixed(2)} ms</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>Avg Job Length:</TableCell>
-                        <TableCell align="right">{data.avgJobLength}</TableCell>
+                        <TableCell align="right">{statsTableData.avgJobLength.toFixed(2)} ms</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>Total Time in Context Switching:</TableCell>
-                        <TableCell align="right">{data.timeInContextSwitching}</TableCell>
+                        <TableCell align="right">{statsTableData.timeInContextSwitching.toFixed(2)} ms</TableCell>
                     </TableRow>
                 </Table>
             </TableContainer>

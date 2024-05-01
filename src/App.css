@@ -51,7 +51,7 @@ p {
 }
 
 #table-container {
-  background-color: pink;
+  background-color: #2a2aa2a;
   height: 100%;
   width: 100%;
   display: flex;
@@ -150,6 +150,9 @@ p {
 .noncustom-btns {
   width: 80%;
   height: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #controls {
@@ -157,7 +160,7 @@ p {
   height: 25%;
   background-color: #e6e6e6;
   display: flex;
-  justify-content: row;
+  flex-direction: column;
 }
 
 /* CONTROLS */
