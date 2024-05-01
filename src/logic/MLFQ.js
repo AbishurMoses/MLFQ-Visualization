@@ -18,6 +18,7 @@ class MLFQ {
     static avgTurnaroundTime;  // map<int, int> maps the jobID to its turnaround time
     static responseTime;    // map<jobID, cycle> maps the jobID to its arrival time for use in response time
     static avgResponseTime; // (number) the average response time for all jobs once MLFQ finishes
+    static colors;          // array of colors for the jobs
     
     constructor(cycleTime, boostCycles) {
         this.queues = [];
@@ -29,6 +30,16 @@ class MLFQ {
         this.avgTurnaroundTime = 0;
         this.arriveCycles = new Map(null);
         this.avgResponseTime = 0;
+        this.colors = [
+            '#af4d98', '#78c0e0', '#bd1e1e',
+            '#3a5a40', '#ff7f51', '#fcf6b1',
+            '#f7b32b', '#8447ff', '#7180ac',
+            '#ff8cc6', '#d34e24', '#a2ad91',
+            '#86cb92', '#694873', '#ffe3dc',
+            '#f72c25', '#331e36', '#cd5d67',
+            '#e9b872', '#c2efeb', '#d00000',
+            '#686963', '#d6d1b1', '#ffb2e6'
+          ]
     }
 
     // The clock is owned by the MLFQ, which decides which queue should run, 
@@ -43,7 +54,8 @@ class MLFQ {
 
     addJob(job) {
         if(this.queues.length > 0) {
-            job.setup(this.jobs.length);
+            let color = this.colors[this.jobs.length];
+            job.setup(this.jobs.length, color);
             this.queues[0].addJob(job);
             this.arriveCycles.set(job.id, this.cyclesElapsed);
         }
@@ -51,7 +63,6 @@ class MLFQ {
             console.log("You need some queues to add jobs to.");
         }
         this.jobs.push(job);
-
     }
 
     /*

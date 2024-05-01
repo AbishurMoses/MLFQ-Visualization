@@ -43,9 +43,10 @@ class Job {
         this.finishCycle = null;
     }
 
-    // handle for MLFQ scheduler to set its ID for this job. 
-    setup(id) {
+    // handle for MLFQ scheduler to set its ID and color for this job. 
+    setup(id, color) {
         this.id = id;
+        this.color = color;
     }
 
     // run the job for one clock cycle
