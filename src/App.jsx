@@ -30,7 +30,7 @@ function App() {
     const [allotPerQueue, setAllotPerQueue] = useState(4); // Queue.queueTimeout // TODO hook this up be reactive with the UI
     const [timePerRrSlice, setTimePerRrSlice] = useState(3); // Queue.RRcycles // TODO hook this up be reactive with the UI
     const [timeBetweenBoosts, setTimeBetweenBoosts] = useState(110); // MLFQ.boostCycles // TODO hook this up be reactive with the UI
-    const [contextSwitchLen, setContextSwitchLen] = useState(0.1);
+    const [contextSwitchLen, setContextSwitchLen] = useState(0.2);
     
     const [queueData, setQueueData] = useState({currentTime: 0, queues: [[], [], []]})
     const [pidData, setPidData] = useState([]);
@@ -165,6 +165,9 @@ function App() {
             case 'boost':
                 setTimeBetweenBoosts(value);
                 break;
+            case 'context-switch-length':
+                setContextSwitchLen(value)
+                break;
             default:
                 break;
         }
@@ -293,7 +296,7 @@ function App() {
         }
         const contextSwitchCount = mlfq.current.queues.reduce((total, queue) => total + queue.jobBlocks.length, 0);
         setPieChartData({
-            contextSwitches: contextSwitchCount,
+            contextSwitches: contextSwitchCount * contextSwitchLen,
             jobs: jobData,
         })
 
@@ -380,12 +383,13 @@ function App() {
                                 <p>Time per RR slice</p>
                             </div>
                             <div className="cols" id="col2">
-                                <div><input type="number" className="control-inp" id="allotment" min="1" max="10" step="1" disabled={jobs.length > 0} value={allotPerQueue} onChange={handleConfig}/>ms</div>
-                                <div><input type="number" className="control-inp" id="rr-slice" min="1" max="10" step="1" disabled={jobs.length > 0} value={timePerRrSlice} onChange={handleConfig}/>ms</div>
+                                <div><input type="number" className="control-inp text-white" id="allotment" min="1" max="10" step="1" disabled={jobs.length > 0} value={allotPerQueue} onChange={handleConfig}/>ms</div>
+                                <div><input type="number" className="control-inp text-white" id="rr-slice" min="1" max="10" step="1" disabled={jobs.length > 0} value={timePerRrSlice} onChange={handleConfig}/>ms</div>
                             </div>
                             <div className="cols" id="col3">
-                                <div>Clock cycle length: <input type="number" className="control-inp" id="clock-cycle-length" min="1" max="10" step="1" disabled={true} value={clockCycleTime} onChange={handleConfig}/>ms</div>
-                                <div>Time for Priority Boost: <input type="number" className="control-inp" id="boost" min="1" max="10" step="1" disabled={jobs.length > 0} value={timeBetweenBoosts} onChange={handleConfig}/>ms</div>
+                                {/* <div>Clock cycle length: <input type="number" className="control-inp" id="clock-cycle-length" min="1" max="10" step="1" disabled={true} value={clockCycleTime} onChange={handleConfig}/>ms</div> */}
+                                <div>Context Switch Length: <input type="number" className="control-inp text-white" id="context-switch-length" min="0.1" max="10" step="0.05" disabled={jobs.length > 0} value={contextSwitchLen} onChange={handleConfig}/>ms</div>
+                                <div>Time for Priority Boost: <input type="number" className="control-inp text-white" id="boost" min="1" max="10" step="1" disabled={jobs.length > 0} value={timeBetweenBoosts} onChange={handleConfig}/>ms</div>
                             </div>
                         </div>
 					</Paper>
