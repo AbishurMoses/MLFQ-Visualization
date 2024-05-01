@@ -17,7 +17,7 @@ class MLFQ {
     static state;
     
     constructor(cycleTime, boostCycles) {
-        this.queues = [];
+        this.queues = []; // queues with jobBlocks
         this.jobs = [];
         this.cycleTime = cycleTime;
         this.boostTime = boostCycles;

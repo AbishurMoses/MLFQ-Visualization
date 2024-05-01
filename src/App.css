@@ -110,6 +110,9 @@ p {
 #graph {
   width: 80%;
   height: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #controls {
@@ -192,11 +195,4 @@ li {
   background-color: white;
   height: 85%;
   width: 85%;
-}
-
-/* LOL */
-#graph {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }

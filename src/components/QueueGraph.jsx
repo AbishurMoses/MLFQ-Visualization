@@ -1,8 +1,16 @@
 import { Card, Paper, Table, TableBody, TableCell, TableRow, Tooltip, Typography } from "@mui/material";
 import { styled } from "@mui/system";
+import { useEffect } from "react";
 
 const QueueGraph = (props) => {
     const { queueData } = props;
+
+    useEffect(() => { // TODO delete me
+        console.log('queueData:')
+        console.dir(queueData)
+    }, [queueData])
+    // console.log('data')
+    // console.dir(queueData)
     const data = { // TEMPORARY, delete this eventually
         currentTime: 50,
         queues: [
@@ -92,17 +100,18 @@ const QueueGraph = (props) => {
     return (
         <Paper id="graph" elevation={8} sx={{backgroundColor: '#2a2a2a'}} className="flex">
             <div className="w-4/5 h-max pb-4 pl-4 flex flex-col justify-center items-center relative font-semibold" style={{gap: `${queueGap}px`, padding: `0 0 ${queueContainerPB}px ${queueContainerPL}px`}}>
-                { data.queues.map((_, idx) => { // y-axis labels
+                { queueData.queues.map((_, idx) => { // y-axis labels
                     let topPosition = (idx * queueGap) + (idx * queueHeight); 
                     return <p key={`queue-label-${idx+1}`} className="absolute flex items-center -left-4 text-white" style={{top: `${topPosition}px`, height: `${queueHeight}px`}}>Q{idx + 1}</p>
                 })}
-                { data.queues.map((queue, index) => { // each queue
+                { queueData.queues.map((queue, index) => { // each queue
+                    
                     return (
                         <Paper key={`${index}`} elevation={3} className="w-full relative flex items-center" style={{height: `${queueHeight}px`}}>
-                            { 
+                            { queue.length !== 0 &&
                             queue.map((jobRun, subIdx) => {
-                                const width = (jobRun.length / data.currentTime) * 100; // width of the job in the queue, expressed as a percentage
-                                const left =  (jobRun.start / data.currentTime) * 100; // position item moves left
+                                const width = (jobRun.length / queueData.currentTime) * 100; // width of the job in the queue, expressed as a percentage
+                                const left =  (jobRun.start / queueData.currentTime) * 100; // position item moves left
                                 return (<Tooltip 
                                             arrow title={buildTitle(jobRun)} 
                                             key={`${jobRun.name}-${index}-${subIdx}`}
@@ -125,9 +134,9 @@ const QueueGraph = (props) => {
                 }) }
                 <div className="absolute flex justify-between -bottom-4 font-semibold text-white" style={{width: `calc(100% - ${queueContainerPL}px)`}}>
                     <p>{0}</p>
-                    <p>{(data.currentTime / 3).toFixed(1)}</p>
-                    <p>{(data.currentTime * 2 / 3).toFixed(1)}</p>
-                    <p>{(data.currentTime).toFixed(1)}</p>
+                    <p>{(queueData.currentTime / 3).toFixed(1)}</p>
+                    <p>{(queueData.currentTime * 2 / 3).toFixed(1)}</p>
+                    <p>{(queueData.currentTime).toFixed(1)}</p>
                 </div>
             </div>
         </Paper>
